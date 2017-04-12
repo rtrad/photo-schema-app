@@ -1,18 +1,14 @@
 import boto3
 from flask import Flask, request, redirect, render_template
+from config import *
 
-AWS_ACCESS_KEY_ID = 'AKIAJ2HGDVJI2VVHV4GQ'
-AWS_SECRET_ACCESS_KEY = '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'
 
-bucket_name = 'photo-schema-app'
 s3 = boto3.client('s3', aws_access_key_id = AWS_ACCESS_KEY_ID,
        aws_secret_access_key = AWS_SECRET_ACCESS_KEY)
 
 app = Flask(__name__)
 
 
-ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'bmp', 'tiff', 'tif', 'gif']
-FILE_FORMAT_S3 = '/photos/{user}/{filename}'
 
 
 @app.route('/api/photo/<photo_id>', methods = ['GET'])
