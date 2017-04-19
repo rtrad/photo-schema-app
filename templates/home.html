@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">    
+    <style>
+    body {
+      padding-top: 5rem;
+    }
+    .starter-template {
+      padding: 3rem 1.5rem;
+      text-align: center;
+    }
+    </style>
+</head>
+
+
+
+
+
+<body>
+    <nav class="navbar navbar-toggleable-md navbar-inverse bg-inverse fixed-top">
+        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <a class="navbar-brand" href="/">intrapic</a>
+
+        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/">Home<span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/upload">Upload</a>
+                </li>
+            </ul>
+            <form class="form-inline my-2 my-lg-0" id="search_form">
+                <input class="form-control mr-sm-2" type="text" placeholder="Search" id="navbar_search_input">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <div class="starter-template">            
+            <div id="search_result_div">
+                <img id="search_result_img" src="">
+            </div>
+            <div id="all_photos_div">
+            {% for photo in photos %}
+                <div class="row">
+                    <div class="col-sm-2"><h3>Photo Id:</h3> {{ photo.photo_id }}</div>
+                    <div class="col-sm-6"><image width=100% src={{ photo.url }}></div>
+                    <div class="col-sm-4"><h3>Tags:</h3>{{ photo.tags }}</div>
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+
+    </div>
+    
+
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function(){
+        $("#search_form").submit(function(){
+            $.ajax({url: "/api/photo/" + $('#navbar_search_input').val(), dataType: 'json', success: function(response){
+                $("#search_result_img").attr("src", response.url)
+                $("#all_photos_div").html('');
+            }});
+            return false;
+        });
+    });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+</body>
+</html>
