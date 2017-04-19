@@ -133,10 +133,13 @@ def index():
                 }
             )
             photo['url'] = url
-        return render_template('home.html', photos = response)
+        if response:
+            return render_template('home.html', photos = response)
+        else:
+            return render_template('home.html', photos = None)
     except Exception as e:
         print e
-        return render_template('home.html', photos=[])
+        return render_template('home.html', photos=None)
 
 @app.route('/upload')
 def upload():

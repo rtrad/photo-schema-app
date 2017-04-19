@@ -49,13 +49,17 @@
                 <img id="search_result_img" src="">
             </div>
             <div id="all_photos_div">
-            {% for photo in photos %}
-                <div class="row">
-                    <div class="col-sm-2"><h3>Photo Id:</h3> {{ photo.photo_id }}</div>
-                    <div class="col-sm-6"><image width=100% src={{ photo.url }}></div>
-                    <div class="col-sm-4"><h3>Tags:</h3>{{ photo.tags }}</div>
-                </div>
-            {% endfor %}
+            {% if photos is not none %}
+                {% for photo in photos %}
+                    <div class="row">
+                        <div class="col-sm-2"><h3>Photo Id:</h3> {{ photo.photo_id }}</div>
+                        <div class="col-sm-6"><image width=100% src={{ photo.url }}></div>
+                        <div class="col-sm-4"><h3>Tags:</h3>{{ photo.tags }}</div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <h2>There are no photos currently available</h2>
+            {% endif %}
             </div>
         </div>
 
