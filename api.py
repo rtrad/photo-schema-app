@@ -2,6 +2,7 @@ import boto3
 from flask import Flask, request, redirect, render_template, jsonify
 import json
 import uuid
+from datetime import datetime
 from config import *
 
 
@@ -62,7 +63,7 @@ def add_photo():
                             'people' : [],
                             'places' : [],
                             'sentiment' : [],
-                            'time' : []
+                            'time' : [int((datetime.utcnow() - datetime(1970, 1,1)).total_seconds())]
                         }
                     }
                 )
