@@ -7,15 +7,12 @@ class LoginForm extends React.Component {
         super(props);
         this.state = {uname: '', pwd: ''};
 
-        this.handleChangeUname = this.handleChangeUname.bind(this);
+        this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
-    handleChangeUname(event) {
-        this.setState({uname: event.target.value}); 
-    }
-
-    handleChangePwd(event) {
-        this.setState({pwd: event.target.value});
+    handleChange(event) {
+        const target = event.target
+        this.setState({[target.name]: target.value}); 
     }
 
     handleSubmit(event) {
@@ -26,11 +23,11 @@ class LoginForm extends React.Component {
             <form onSubmit={this.handleSubmit}>
                 <label>
                     Username:
-                    <input type="text" value={this.state.uname} onChange={this.handleChangeUname} />
+                    <input name="uname" type="text" value={this.state.uname} onChange={this.handleChange} />
                 </label>
                 <label>
                     Password:
-                    <input type="password" value={this.state.pwd} onChange={this.handleChangePwd} />
+                    <input name="pwd" type="password" value={this.state.pwd} onChange={this.handleChange} />
                 </label>
                 <input type="submit" value="Login" />
             </form>
