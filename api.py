@@ -1,6 +1,6 @@
 import boto3
-from flask import Flask, request, redirect, render_template, jsonify
-import json
+from flask import Flask, request, redirect, render_template
+import simplejson as json
 import uuid
 from datetime import datetime
 from config import *
@@ -37,9 +37,9 @@ def get_photo(photo_id):
                     'Key' : key
                 }
             )
-        return jsonify({"url":url})
+        return json.dumps({"url":url})
     except:
-        return jsonify({"operation_successful" : False})
+        return json.dumps({"operation_successful" : False})
 
 @app.route('/api/photo', methods = ['POST'])
 def add_photo():
@@ -68,9 +68,28 @@ def add_photo():
                     }
                 )
             
-            return jsonify({"photo_id" : photo_id})
-    return jsonify({"operation_successful" : False})
+            return json.dumps({"photo_id" : photo_id})
+    return json.dumps({"operation_successful" : False})
 
+@app.route('/api/photos/', methods = ['GET'])
+def get_photos():
+    try:
+        response = dynamo_table.scan(Limit=30)['Items']
+        for photo in response:
+            key = photo['s3_key']
+            url = s3.generate_presigned_url(
+                ClientMethod='get_object',
+                Params={
+                    'Bucket' : BUCKET_NAME,
+                    'Key' : key
+                }
+            )
+            photo['url'] = url
+        return json.dumps(response)
+    except:
+       return json.dumps({"operation_successful" : False})
+
+    
 @app.route('/api/photo/<photo_id>', methods = ['DELETE'])
 def delete_photo(photo_id):
     try:
@@ -88,7 +107,7 @@ def delete_photo(photo_id):
         success = True
     except:
         success = False
-    return jsonify({"operation_successful" : success})
+    return json.dumps({"operation_successful" : success})
     
 
     
@@ -102,9 +121,9 @@ def get_tags(photo_id):
                     'photo_id' : photo_id
                 }
             )
-        return jsonify({"tags" : response['Item']['tags']})
+        return json.dumps({"tags" : response['Item']['tags']})
     except:
-        return jsonify({"operation_successful" : False})
+        return json.dumps({"operation_successful" : False})
 
 @app.route('/api/photo/<photo_id>/tags', methods = ['POST'])
 def post_tags(photo_id):
