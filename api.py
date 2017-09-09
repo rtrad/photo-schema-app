@@ -1,5 +1,6 @@
 import boto3
 from flask import Flask, request, redirect, render_template
+from flask.ext.cors import CORS
 import simplejson as json
 import uuid
 from datetime import datetime
@@ -20,6 +21,8 @@ dynamo_table = dynamodb.Table(table_name)
 
 
 app = Flask(__name__)
+CORS(app)
+
 
 @app.route('/api/photo/<photo_id>', methods = ['GET'])
 def get_photo(photo_id):
@@ -37,13 +40,13 @@ def get_photo(photo_id):
                     'Key' : key
                 }
             )
-        return json.dumps({"url":url})
-    except:
-        return json.dumps({"operation_successful" : False})
+        return json.dumps({"url":url}), 200
+    except Exception as e:
+        return json.dumps({"error" : e}), 500
 
 @app.route('/api/photo', methods = ['POST'])
 def add_photo():
-    if 'file' in request.files:
+    try:
         file = request.files['file']
         
         if not file.filename == '' and _allowed_file(file.filename):
@@ -68,10 +71,11 @@ def add_photo():
                     }
                 )
             
-            return json.dumps({"photo_id" : photo_id})
-    return json.dumps({"operation_successful" : False})
+            return json.dumps({"photo_id" : photo_id}), 200
+    except Exception as e:
+        return json.dumps({"error" : e}), 500
 
-@app.route('/api/photos/', methods = ['GET'])
+@app.route('/api/photos/')
 def get_photos():
     try:
         response = dynamo_table.scan(Limit=30)['Items']
@@ -85,9 +89,9 @@ def get_photos():
                 }
             )
             photo['url'] = url
-        return json.dumps(response)
-    except:
-       return json.dumps({"operation_successful" : False})
+        return json.dumps(response), 200
+    except Exception as e:
+       return json.dumps({"error" : e}), 500
 
     
 @app.route('/api/photo/<photo_id>', methods = ['DELETE'])
@@ -104,10 +108,9 @@ def delete_photo(photo_id):
                 Bucket=BUCKET_NAME,
                 Key=key
             )
-        success = True
-    except:
-        success = False
-    return json.dumps({"operation_successful" : success})
+        return '200 OK'
+    except Exception as e:
+        return json.dumps({"error" : e}), 500
     
 
     
@@ -121,9 +124,9 @@ def get_tags(photo_id):
                     'photo_id' : photo_id
                 }
             )
-        return json.dumps({"tags" : response['Item']['tags']})
-    except:
-        return json.dumps({"operation_successful" : False})
+        return json.dumps({"tags" : response['Item']['tags']}), 200
+    except Exception as e:
+        return json.dumps({"error" : e}), 500
 
 @app.route('/api/photo/<photo_id>/tags', methods = ['POST'])
 def post_tags(photo_id):
