@@ -90,3 +90,6 @@ ENV/
 
 # node_modules folder
 frontend/node_modules
+
+# config file
+config.py
