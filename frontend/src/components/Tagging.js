@@ -1,6 +1,6 @@
 import React from 'react';
 import $ from 'jquery';
-import {Carousel, Row, Col} from 'react-bootstrap';
+import {Carousel} from 'react-bootstrap';
 
 class Tagging extends React.Component {
 	constructor(props) {
@@ -36,16 +36,16 @@ class Tagging extends React.Component {
     }
     
     render() {
-		
+		var imageStyle = {
+            display: "block",
+            height: "600px",
+            margin: "auto"
+        };
 		return (
 			<Carousel>
 				{this.state.photos.map(photo =>
 					<Carousel.Item>
-						<Row>
-							<Col sm={3}>
-								<img src={photo.url} />
-							</Col>
-						</Row>
+                        <img src={photo.url} style={imageStyle}/>
 					</Carousel.Item>
 				
 				)}

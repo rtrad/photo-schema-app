@@ -1,6 +1,6 @@
 import React from 'react';
 import $ from 'jquery';
-import {Carousel, Row, Col} from 'react-bootstrap';
+import {ListGroup, ListGroupItem} from 'react-bootstrap';
 
 class MainScreen extends React.Component {
 	constructor(props) {
@@ -23,6 +23,7 @@ class MainScreen extends React.Component {
 				this.setState({photos : result}); 
 			}
 		});
+        console.log(this.state.photos.length);
     }
 	
 	
@@ -36,20 +37,12 @@ class MainScreen extends React.Component {
     }
     
     render() {
-		
 		return (
-			<Carousel>
-				{this.state.photos.map(photo =>
-					<Carousel.Item>
-						<Row>
-							<Col sm={3}>
-								<img src={photo.url} />
-							</Col>
-						</Row>
-					</Carousel.Item>
-				
-				)}
-			</Carousel>
+			<ListGroup>
+                {this.state.photos.map(photo => 
+                    <ListGroupItem><img src={photo.url} width={100}></img></ListGroupItem>
+                )}
+			</ListGroup>
 		);
 	}
 }
