@@ -1,6 +1,6 @@
 import React from 'react';
 import $ from 'jquery';
-import {Carousel} from 'react-bootstrap';
+import {Carousel, FormControl, ControlLabel, Button } from 'react-bootstrap';
 
 class Tagging extends React.Component {
 	constructor(props) {
@@ -41,15 +41,25 @@ class Tagging extends React.Component {
             height: "600px",
             margin: "auto"
         };
+        var tagStyle = {
+            margin: "0 auto"
+        };
+        
 		return (
-			<Carousel>
-				{this.state.photos.map(photo =>
-					<Carousel.Item>
-                        <img src={photo.url} style={imageStyle}/>
-					</Carousel.Item>
-				
-				)}
-			</Carousel>
+            <div>
+                <Carousel>
+                    {this.state.photos.map(photo =>
+                        <Carousel.Item>
+                            <img src={photo.url} style={imageStyle}/>
+                        </Carousel.Item>
+                    )}
+                </Carousel>
+                <br/>
+                <div style={tagStyle}>
+                    <FormControl type="text"></FormControl>
+                    <Button bsStyle="success">Add Tags</Button>
+                </div>
+            </div>
 		);
 	}
 }
