@@ -1,10 +1,12 @@
 import boto3
+from boto3.dynamodb.conditions import Attr
 from flask import Flask, request, redirect, render_template
-from flask.ext.cors import CORS
+from flask_cors import CORS
 import simplejson as json
 import uuid
 from datetime import datetime
 from config import *
+import smtplib
 
 
 user_id = "ryantrad"
@@ -19,6 +21,7 @@ s3 = boto_session.client('s3')
 dynamodb = boto_session.resource('dynamodb', region_name='us-west-2')
 dynamo_table = dynamodb.Table(table_name)
 
+users_table = dynamodb.Table('users')
 
 app = Flask(__name__)
 CORS(app)
@@ -160,7 +163,7 @@ def index():
         else:
             return render_template('home.html', photos = None)
     except Exception as e:
-        print e
+        print(e)
         return render_template('home.html', photos=None)
 
 @app.route('/upload')
@@ -170,6 +173,36 @@ def upload():
 def _allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/email')
+def email():
+    try:
+        smtpObj = smtplib.SMTP(SMPT_SERVER, SMPT_PORT)
+        smtpObj.ehlo()
+        smtpObj.starttls()
+        smtpObj.login(SENDER_ADDRESS, SENDER_PASSWORD)
+        users = users_table.scan()['Items']
+        print(users)
+        for user in users:
+            email = user["email"]
+            name = user["name"]
+            username = user["username"]
+            photos = dynamo_table.scan(FilterExpression = Attr("username").eq(username))
+            print(photos)
+            total = photos["Count"]
+            untagged = 0
+            for photo in photos["Items"]:
+                if len(photo["tags"]) == 0:
+                    untagged += 1
+            smtpObj.sendmail(SENDER_ADDRESS, email,
+                         'Subject: Untagged photos \n' + name
+                             + ', you have ' + str(untagged) + " untagged photos out of " + str(total) + " total photos.")
+            print("Single email sent")
+        smtpObj.quit()
+        return "Email sent"
+    except Exception as e:
+        print(e)
+        return "Email not sent" + str(e)
 
 
 if __name__ == '__main__':
