@@ -174,7 +174,7 @@ class Tagging extends React.Component {
             isRecording: false
         });
     }
-    
+
     clear() {
         this.setState({
             recognized: '',
@@ -214,13 +214,14 @@ class Tagging extends React.Component {
                     <Button bsStyle="success">Add Tags</Button>
                 </div>
 
-                <button disabled={!this.state.compatible} onClick={this.beginRecognition.bind(this)}>
-                {buttonText}
-                </button>
-
+                <div style={tagStyle}>
+                    <FormControl type="text"></FormControl>
+                    <Button  disabled={!this.state.compatible} onClick={this.beginRecognition.bind(this)}>
+                {buttonText}</Button>
+                </div>
 
                 <p><label>Transcribed:</label><span className="result" dangerouslySetInnerHTML={{__html: this.state.transcribed}} /></p>
-                {this.state.recognized && <button onClick={this.clear.bind(this)}>× Clear</button>}
+                {this.state.recognized && <Button onClick={this.clear.bind(this)}>× Clear</Button>}
 
             </div>           
 		);
