@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormGroup, FormControl, ControlLabel, Button } from 'react-bootstrap'; 
+import { Form, FormGroup, FormControl, ControlLabel, Col, Button } from 'react-bootstrap'; 
 
 class LoginForm extends React.Component {
     constructor(props) {
@@ -20,19 +20,30 @@ class LoginForm extends React.Component {
 
     render() {
         return (
-            <form onSubmit={this.handleSubmit}>
+            <Form horizontal onSubmit={this.handleSubmit}>
                 <FormGroup>
-                    <ControlLabel>
-                        Username:
+                    <Col componentClass={ControlLabel} sm={2}>Username:</Col>
+                    <Col sm={10}>
                         <FormControl name="uname" type="text" value={this.state.uname} onChange={this.handleChange} />
-                    </ControlLabel>
-                    <ControlLabel>
-                        Password:
-                        <FormControl name="pwd" type="password" value={this.state.pwd} onChange={this.handleChange} />
-                    </ControlLabel>
-                    <Button type="submit">Login</Button>
+                    </Col>
                 </FormGroup>
-            </form>
+                <FormGroup>
+                    <Col componentClass={ControlLabel} sm={2}>Password:</Col>
+                    <Col sm={10}>
+                        <FormControl name="pwd" type="password" value={this.state.pwd} onChange={this.handleChange} />
+                    </Col>
+                </FormGroup>
+                <FormGroup>
+                    <Col smOffset={2} sm={10}>
+                        <Button type="submit">Login</Button>
+                    </Col>
+                </FormGroup>
+                <FormGroup>
+                    <Col smOffset={2} sm={10}>
+                        <Button bsStyle="primary">Register</Button>
+                    </Col>
+                </FormGroup>
+            </Form>
         );
     }
 }
