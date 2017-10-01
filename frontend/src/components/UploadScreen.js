@@ -8,12 +8,13 @@ import $ from "jquery";
 
 
 export default class UploadScreen extends Component {
+
   constructor(props) {
     super(props);
     this.state = {
       filesPreview:[],
       filesToBeSent:[],
-      photoCount:100
+      photoCount:10
     }
   }
   onDrop(acceptedFiles, rejectedFiles) {
@@ -25,17 +26,8 @@ export default class UploadScreen extends Component {
       var filesPreview = [];
       for(var i in filesToBeSent) {
         filesPreview.push(
-          <div> {filesToBeSent[i][0].name}
-            <MuiThemeProvider>
-              <a href = "#">
-                <FontIcon
-                  className = "material-icons customstyle"
-                  color = {blue500}
-                  styles = {{ top:10,}}
-                  >clear
-                </FontIcon>
-              </a>
-            </MuiThemeProvider>
+          <div>
+            {filesToBeSent[i][0].name}
           </div>
         )
       }
@@ -49,20 +41,35 @@ export default class UploadScreen extends Component {
   }
 
   handleClick(event) {
-    // console.log("handleClick",event);
+    console.log("handleClick",event);
     var self = this;
     if (this.state.filesToBeSent.length > 0) {
       var filesArray = this.state.filesToBeSent;
       for (var i in filesArray) {
-        console.log("files", filesArray[i]);
         var fd = new FormData();
-        fd.append("file1",filesArray[i]);
-        $.ajax ({type:"POST", url:"http://localhost:5000/api/photo", data:fd, contentType:"application/octet-stream"});
+        fd.append("file",filesArray[i]);
       }
+      $.ajax ({
+        type:'POST',
+        url:'http://localhost:5000/api/photo',
+        data: fd,
+        dataType: "JSON",
+        processData: false,
+        contentType: false
+      });
+      alert("File upload successful!");
     }
     else {
       alert("There are no files to upload.");
     }
+  }
+
+  handleClear(event, fileName) {
+    var filesPreview = this.state.filesPreview;
+    var filesToBeSent = this.state.filesToBeSent;
+    filesPreview = [];
+    filesToBeSent = [];
+    this.setState({filesToBeSent, filesPreview})
   }
 
   render() {
@@ -73,10 +80,6 @@ export default class UploadScreen extends Component {
             Drop files here to upload or click in the box to select files to upload.
           </div>
         </Dropzone>
-        <div>
-          Photos to be uploaded are:
-          {this.state.filesPreview}
-        </div>
         <MuiThemeProvider>
             <RaisedButton
               label = "Upload"
@@ -84,6 +87,20 @@ export default class UploadScreen extends Component {
               onClick = {(event) => this.handleClick(event)}
             />
         </MuiThemeProvider>
+
+        <MuiThemeProvider>
+            <RaisedButton
+              label = "Clear"
+              primary = {true}
+              onClick = {(event) => this.handleClear(event)}
+            />
+        </MuiThemeProvider>
+
+        <div>
+          Photos to be uploaded are:
+          {this.state.filesPreview}
+        </div>
+
       </div>
     );
   }
