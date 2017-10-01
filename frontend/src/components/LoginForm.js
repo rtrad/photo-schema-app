@@ -1,6 +1,6 @@
 import React from 'react';
 import $ from 'jquery';
-import { Form, FormGroup, FormControl, ControlLabel, Button } from 'react-bootstrap'; 
+import { Form, FormGroup, FormControl, ControlLabel, Col, Button } from 'react-bootstrap'; 
 
 const initialState = {
     username: '',
@@ -46,19 +46,30 @@ class LoginForm extends React.Component {
 
     render() {
         return (
-            <form onSubmit={this.handleSubmit}>
+            <Form horizontal onSubmit={this.handleSubmit}>
                 <FormGroup>
-                    <ControlLabel>
-                        Username:
+                    <Col componentClass={ControlLabel} sm={2}>Username:</Col>
+                    <Col sm={10}>
                         <FormControl name="username" type="text" value={this.state.username} onChange={this.handleChange} />
-                    </ControlLabel>
-                    <ControlLabel>
-                        Password:
-                        <FormControl name="password" type="password" value={this.state.password} onChange={this.handleChange} />
-                    </ControlLabel>
-                    <Button type="submit">Login</Button>
+                    </Col>
                 </FormGroup>
-            </form>
+                <FormGroup>
+                    <Col componentClass={ControlLabel} sm={2}>Password:</Col>
+                    <Col sm={10}>
+                        <FormControl name="password" type="password" value={this.state.password} onChange={this.handleChange} />
+                    </Col>
+                </FormGroup>
+                <FormGroup>
+                    <Col smOffset={2} sm={10}>
+                        <Button type="submit">Login</Button>
+                    </Col>
+                </FormGroup>
+                <FormGroup>
+                    <Col smOffset={2} sm={10}>
+                        <Button bsStyle="primary">Register</Button>
+                    </Col>
+                </FormGroup>
+            </Form>
         );
     }
 }

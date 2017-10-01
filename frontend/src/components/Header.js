@@ -5,6 +5,15 @@ import {Nav, Navbar, NavItem} from 'react-bootstrap';
 
 
 class Header extends React.Component {
+    constructor(props) {
+        super(props);
+        this.handleLogout = this.handleLogout.bind(this);
+    }
+    
+    handleLogout(event) {
+        localStorage.removeItem('token');
+    }
+    
 	render() {
 		return (
 			<Navbar>
@@ -12,6 +21,8 @@ class Header extends React.Component {
 					<Navbar.Brand>
 						<Link to='/'>Intrapic</Link>
 					</Navbar.Brand>
+                </Navbar.Header>
+                <Navbar.Collapse>
                     <Nav>
                         <NavItem>
                             <Link to='/home'>Home</Link>
@@ -23,7 +34,12 @@ class Header extends React.Component {
                             <Link to='/tagging'>Tagging</Link>
                         </NavItem>
                     </Nav>
-				</Navbar.Header>
+                    <Nav pullRight>
+                        <NavItem>
+                            <Link to='/' onClick={this.handleLogout}>Logout</Link>
+                        </NavItem>
+                    </Nav>
+				</Navbar.Collapse>
 			</Navbar>
 		);
 	}

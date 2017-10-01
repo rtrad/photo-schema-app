@@ -1,18 +1,16 @@
 from itsdangerous import TimedJSONWebSignatureSerializer
 import json
 from functools import wraps
-from config import app_key
-from flask import request
+from config import APP_KEY
+from flask import request, g
 
 def generate_token(username, expires=1209600):
-    s = TimedJSONWebSignatureSerializer(app_key, expires_in=expires)
-    token = s.dumps({
-        'username': username
-    }).decode('utf-8')
+    s = TimedJSONWebSignatureSerializer(APP_KEY, expires_in=expires)
+    token = s.dumps(username).decode('utf-8')
     return token
     
 def verify_token(token):
-    s = TimedJSONWebSignatureSerializer(app_key)
+    s = TimedJSONWebSignatureSerializer(APP_KEY)
     try:
         data = s.loads(token)
     except:
@@ -27,6 +25,7 @@ def authenticate(f):
             token = token.encode('ascii', 'ignore')
             username = verify_token(token)
             if username:
+                g.username = username
                 return f(*args, **kwargs)    
         return json.dumps({'error' : 'authentication required'}), 401
     return decorated

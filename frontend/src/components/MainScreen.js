@@ -13,7 +13,6 @@ class MainScreen extends React.Component {
 	}
     
     fetchPhotos() {
-        console.log(localStorage);
 		$.ajax({
 			type: "GET",
 			url: 'http://localhost:5000/api/photos/',
@@ -21,11 +20,9 @@ class MainScreen extends React.Component {
 			dataType: 'json',
             headers: {'Authentication' : localStorage.getItem('token')},
 			success: (result)=>{
-				console.log(result);
 				this.setState({photos : result}); 
 			}
 		});
-        console.log(this.state.photos.length);
     }
 	
 	
