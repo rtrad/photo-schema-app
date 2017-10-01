@@ -4,6 +4,7 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import FontIcon from 'material-ui/FontIcon';
 import {blue500, red500, greenA200} from 'material-ui/styles/colors';
 import RaisedButton from 'material-ui/RaisedButton';
+import {Grid, Col} from "react-bootstrap";
 import $ from "jquery";
 
 
@@ -58,6 +59,11 @@ export default class UploadScreen extends Component {
         contentType: false
       });
       alert("File upload successful!");
+      var filesPreview = this.state.filesPreview;
+      var filesToBeSent = this.state.filesToBeSent;
+      filesPreview = [];
+      filesToBeSent = [];
+      this.setState({filesToBeSent, filesPreview})
     }
     else {
       alert("There are no files to upload.");
@@ -74,7 +80,7 @@ export default class UploadScreen extends Component {
 
   render() {
     return (
-      <div>
+      <Grid><Col xs={6} md={6}>
         <Dropzone onDrop = {(photos) => this.onDrop(photos)}>
           <div>
             Drop files here to upload or click in the box to select files to upload.
@@ -101,7 +107,7 @@ export default class UploadScreen extends Component {
           {this.state.filesPreview}
         </div>
 
-      </div>
+      </Col></Grid>
     );
   }
 }

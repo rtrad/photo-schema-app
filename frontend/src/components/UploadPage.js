@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import {Form, Button} from 'react-bootstrap';
 import $ from "jquery";
 
 export default class UploadPage extends Component {
@@ -7,17 +8,28 @@ export default class UploadPage extends Component {
       this.handleSubmit = this.handleSubmit.bind(this);
   }
   handleSubmit(event) {
+    event.preventDefault();
     var fd = new FormData();
-    fd.append("file", event.target.files[0]);
-    $.ajax ({type:"POST", url:"http://localhost:5000/api/photo", data:fd});
+    //console.log(localStorage.getItem("token"));
+    fd.append("file", this.fileUpload.files[0]);
+    $.ajax ({type:"POST",
+      url:"http://localhost:5000/api/photo",
+      data:fd,
+      processData: false,
+      contentType: false,
+      headers: {Authentication: localStorage.getItem("token")},
+      crossDomain: true
+    });
   }
 
   render() {
     return(
-      <form encType = 'multipart/form-data' method = "POST" action = "http://localhost:5000/api/photo">
-        <input type = 'file' name = "file"/>
-        <input type = 'submit' value = "upload"/>
-      </form>
+      <Form onSubmit = {this.handleSubmit}>
+        <input type = 'file' name = "file" ref = {(ref) => this.fileUpload = ref}/>
+        <Button type = 'submit'>
+          Upload
+        </Button>
+      </Form>
     )
   }
 }

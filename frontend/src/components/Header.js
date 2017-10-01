@@ -9,11 +9,11 @@ class Header extends React.Component {
         super(props);
         this.handleLogout = this.handleLogout.bind(this);
     }
-    
+
     handleLogout(event) {
         localStorage.removeItem('token');
     }
-    
+
 	render() {
 		return (
 			<Navbar>
@@ -21,6 +21,7 @@ class Header extends React.Component {
 					<Navbar.Brand>
 						<Link to='/'>Intrapic</Link>
 					</Navbar.Brand>
+          <Navbar.Toggle />
                 </Navbar.Header>
                 <Navbar.Collapse>
                     <Nav>
