@@ -64,7 +64,6 @@ def add_photo():
                         's3_key' : filename,
                         'username' : g.username,
                         'tags' : [
-                            {'type': 'upload_time', 'value' : [int((datetime.utcnow() - datetime(1970, 1,1)).total_seconds())]}
                         ]
                     }
                 )
