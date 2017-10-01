@@ -7,8 +7,8 @@ import tag_style from '../react-tags.css'
 
 
 class Tagging extends React.Component {
-	constructor(props) {
-		super(props);
+    constructor(props) {
+        super(props);
 
         let compatible = true;
         if(!window.webkitSpeechRecognition) {
@@ -16,18 +16,17 @@ class Tagging extends React.Component {
             console.info('The Transcription component has been disabled because your web browser does not support Speech Recognition.');
         }
         
-		this.state = {searchquery : '', 
+        this.state = {searchquery : '', 
             photos : [],
             recognized: '',
             transcribed: '',
             compatible,
             isRecording: false,
             carousel_id: 0,
-            curr_tags: [],
-            photos: []
+            curr_tags: []
         };
 
-		this.fetchPhotos();
+        this.fetchPhotos();
         this.handleChange = this.handleChange.bind(this);
         this.handleSearch = this.handleSearch.bind(this);
         this.handleSelect = this.handleSelect.bind(this);
@@ -39,67 +38,58 @@ class Tagging extends React.Component {
         this.recognition = null;
         this.wordTranscriptions = props.data || {};
 
-	}
-    
-    handleTagsChange(event) {
-        const target = event.target;
-        this.setState({
-            newtags : target.value
-        });
     }
     
-    handleUpdateTags(event) {
-        console.log(this.state.newtags);
-        const photo_id = this.state.photos[this.state.photo_index].photo_id;
+    pushTag(photo_id, tag) {
         $.ajax({
-			type: "PUT",
-			url: 'http://localhost:5000/api/photo/' + photo_id + '/tags',
-			crossDomain: true,
-			dataType: 'json',
-            headers : {Authentication : localStorage.getItem('token')},
-            data : {tags : this.state.newtags},
-			success: (result)=>{
-				this.fetchTags(photo_id);
-			}
-		});
+            type: "PUT",
+            url: 'http://localhost:5000/api/photo/' + photo_id + '/tags',
+            crossDomain: true,
+            dataType: 'json',
+            headers : {'Authentication' : localStorage.getItem('token')},
+            data : {'tags' : tag}
+        });
     }
     
-    handlePhotoRotate(selectedIndex, event) {
-        this.setState({
-            photo_index : selectedIndex,
-            photo_direction : event.direction
-        });
-        this.setState({
-            tags : this.state.photos[selectedIndex].tags 
-        });
-    }
     
     fetchTags(photo_id) {
         $.ajax({
-			type: "GET",
-			url: 'http://localhost:5000/api/photo/' + photo_id + '/tags',
-			crossDomain: true,
-			dataType: 'json',
+            type: "GET",
+            url: 'http://localhost:5000/api/photo/' + photo_id + '/tags',
+            crossDomain: true,
+            dataType: 'json',
             headers : {'Authentication' : localStorage.getItem('token')},
-			success: (result)=>{
-				this.setState(result); 
-			}
-		});
+            success: (result)=>{
+                let tags = [];
+                
+                this.state.photos[this.state.carousel_id].tags.forEach(
+                    function(tag, index) {
+                        tags.push({id: index, text: tag.value})
+                    });
+                this.setState({curr_tags : tags});
+            }
+        });
     }
     
     fetchPhotos() {
-		$.ajax({
-			type: "GET",
-			url: 'http://localhost:5000/api/photos/',
-			crossDomain: true,
-			dataType: 'json',
+        $.ajax({
+            type: "GET",
+            url: 'http://localhost:5000/api/photos/',
+            crossDomain: true,
+            dataType: 'json',
             headers : {'Authentication' : localStorage.getItem('token')},
-			success: (result)=>{
-				console.log(result);
-				this.setState({photos : result}); 
-                this.setState({tags : this.state.photos[this.state.photo_index].tags});
-			}
-		});
+            success: (result)=>{
+                this.setState({photos : result}); 
+                
+                let tags = [];
+                
+                this.state.photos[this.state.carousel_id].tags.forEach(
+                    function(tag, index) {
+                        tags.push({id: index, text: tag.value})
+                    });
+                this.setState({curr_tags : tags});
+            }
+        });
     }
 
     // Carousel handler functions
@@ -107,6 +97,15 @@ class Tagging extends React.Component {
         this.setState({
             carousel_id: selectedIndex,
         });
+        
+        let tags = [];
+        
+        (this.state.photos[selectedIndex].tags.forEach(
+            function (tag, index) {
+                tags.push({id : index, text: tag.value});
+            }
+        ));
+        this.setState({curr_tags : tags});
     }
 
     //Tagging handler functions
@@ -123,6 +122,7 @@ class Tagging extends React.Component {
             text: tag
         });
         this.setState({curr_tags: curr_tags});
+        this.pushTag(this.state.photos[this.state.carousel_id].photo_id, tag);
 
     }
     handleTagDrag(tag, currPos, newPos) {
@@ -133,14 +133,14 @@ class Tagging extends React.Component {
         this.setState({curr_tags: curr_tags});
     }
 
-	
-	handleChange(event) {
+    
+    handleChange(event) {
         const target = event.target;
         this.setState({[target.name]: target.value}); 
-	}
-	
+    }
+    
     handleSearch(event) {
-		alert('Search is not yet implemented');
+        alert('Search is not yet implemented');
     }
 
     //Start of voice function
@@ -273,7 +273,7 @@ class Tagging extends React.Component {
     //End of voice function
 
     render() {
-		var imageStyle = {
+        var imageStyle = {
             display: "block",
             height: "600px",
             margin: "auto"
@@ -287,7 +287,7 @@ class Tagging extends React.Component {
             'Your browser does not support Speech Recognition.';
         
         const { carousel_id, curr_tags, photos } = this.state;
-		return (
+        return (
 
             <div>
                 <Carousel activeIndex={carousel_id} onSelect={this.handleSelect}>
@@ -329,8 +329,8 @@ class Tagging extends React.Component {
                 {this.state.recognized && <Button onClick={this.clear.bind(this)}>× Clear</Button>}
 
             </div>           
-		);
-	}
+        );
+    }
 }
 
 Tagging.propTypes = {
