@@ -286,16 +286,6 @@ class Tagging extends React.Component {
 	}
 }
 
-Tagging.propTypes = {
-    data: PropTypes.object,
-    dataPath: PropTypes.string,
-    onTranscription: PropTypes.func,
-    textStart: PropTypes.string,
-    textStop: PropTypes.string,
-    textUnsupported: PropTypes.string,
-    wrapTokens: PropTypes.string,
-    wrapUnknown: PropTypes.string
-};
 
 Tagging.defaultProps = {
     textStart: '🎤 Begin Tagging',
