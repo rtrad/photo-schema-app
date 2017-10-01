@@ -41,15 +41,63 @@ class Tagging extends React.Component {
 
 	}
     
+    handleTagsChange(event) {
+        const target = event.target;
+        this.setState({
+            newtags : target.value
+        });
+    }
+    
+    handleUpdateTags(event) {
+        console.log(this.state.newtags);
+        const photo_id = this.state.photos[this.state.photo_index].photo_id;
+        $.ajax({
+			type: "PUT",
+			url: 'http://localhost:5000/api/photo/' + photo_id + '/tags',
+			crossDomain: true,
+			dataType: 'json',
+            headers : {Authentication : localStorage.getItem('token')},
+            data : {tags : this.state.newtags},
+			success: (result)=>{
+				this.fetchTags(photo_id);
+			}
+		});
+    }
+    
+    handlePhotoRotate(selectedIndex, event) {
+        this.setState({
+            photo_index : selectedIndex,
+            photo_direction : event.direction
+        });
+        this.setState({
+            tags : this.state.photos[selectedIndex].tags 
+        });
+    }
+    
+    fetchTags(photo_id) {
+        $.ajax({
+			type: "GET",
+			url: 'http://localhost:5000/api/photo/' + photo_id + '/tags',
+			crossDomain: true,
+			dataType: 'json',
+            headers : {'Authentication' : localStorage.getItem('token')},
+			success: (result)=>{
+				this.setState(result); 
+			}
+		});
+    }
+    
     fetchPhotos() {
 		$.ajax({
 			type: "GET",
 			url: 'http://localhost:5000/api/photos/',
 			crossDomain: true,
 			dataType: 'json',
+            headers : {'Authentication' : localStorage.getItem('token')},
 			success: (result)=>{
 				console.log(result);
 				this.setState({photos : result}); 
+                this.setState({tags : this.state.photos[this.state.photo_index].tags});
 			}
 		});
     }

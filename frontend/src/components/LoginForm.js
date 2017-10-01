@@ -1,10 +1,16 @@
 import React from 'react';
+import $ from 'jquery';
 import { Form, FormGroup, FormControl, ControlLabel, Col, Button } from 'react-bootstrap'; 
+
+const initialState = {
+    username: '',
+    password: ''
+};
 
 class LoginForm extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {uname: '', pwd: ''};
+        this.state = initialState;
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -15,7 +21,27 @@ class LoginForm extends React.Component {
     }
 
     handleSubmit(event) {
-        alert("logged in");
+		event.preventDefault();
+		var formData = {
+			username : this.state.username,
+			password : this.state.password
+		};
+		$.ajax({
+			type: "POST",
+			url: 'http://localhost:5000/login',
+			crossDomain: true,
+			data: formData,
+            dataType: 'json',
+			success: (result)=>{
+                localStorage.setItem('token', result['token']);
+                this.context.router.history.push('/home'); 
+            },
+            error: (result)=>{
+                alert('invalid login');
+                localStorage.removeItem('token');
+                this.setState(initialState);
+            }
+		});
     }
 
     render() {
@@ -24,13 +50,13 @@ class LoginForm extends React.Component {
                 <FormGroup>
                     <Col componentClass={ControlLabel} sm={2}>Username:</Col>
                     <Col sm={10}>
-                        <FormControl name="uname" type="text" value={this.state.uname} onChange={this.handleChange} />
+                        <FormControl name="username" type="text" value={this.state.username} onChange={this.handleChange} />
                     </Col>
                 </FormGroup>
                 <FormGroup>
                     <Col componentClass={ControlLabel} sm={2}>Password:</Col>
                     <Col sm={10}>
-                        <FormControl name="pwd" type="password" value={this.state.pwd} onChange={this.handleChange} />
+                        <FormControl name="password" type="password" value={this.state.password} onChange={this.handleChange} />
                     </Col>
                 </FormGroup>
                 <FormGroup>
@@ -47,5 +73,9 @@ class LoginForm extends React.Component {
         );
     }
 }
+
+LoginForm.contextTypes = {
+  router: React.PropTypes.func.isRequired
+};
 
 export default LoginForm;

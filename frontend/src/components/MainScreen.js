@@ -18,12 +18,11 @@ class MainScreen extends React.Component {
 			url: 'http://localhost:5000/api/photos/',
 			crossDomain: true,
 			dataType: 'json',
+            headers: {'Authentication' : localStorage.getItem('token')},
 			success: (result)=>{
-				console.log(result);
 				this.setState({photos : result}); 
 			}
 		});
-        console.log(this.state.photos.length);
     }
 	
 	
