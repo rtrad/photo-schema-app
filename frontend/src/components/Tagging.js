@@ -1,8 +1,9 @@
 import React, { Component, PropTypes } from 'react';
 
 import $ from 'jquery';
-import {Carousel, FormControl, ControlLabel, Button } from 'react-bootstrap';
-
+import {Carousel, FormGroup, FormControl, ControlLabel, Button } from 'react-bootstrap';
+import {WithContext as ReactTags} from 'react-tag-input';
+import tag_style from '../react-tags.css'
 
 
 class Tagging extends React.Component {
@@ -20,11 +21,20 @@ class Tagging extends React.Component {
             recognized: '',
             transcribed: '',
             compatible,
-            isRecording: false,};
+            isRecording: false,
+            carousel_id: 0,
+            curr_tags: [],
+            photos: []
+        };
 
 		this.fetchPhotos();
         this.handleChange = this.handleChange.bind(this);
         this.handleSearch = this.handleSearch.bind(this);
+        this.handleSelect = this.handleSelect.bind(this);
+
+        this.handleTagDelete = this.handleTagDelete.bind(this);
+        this.handleTagAdd = this.handleTagAdd.bind(this);
+        this.handleTagDrag = this.handleTagDrag.bind(this);
 
         this.recognition = null;
         this.wordTranscriptions = props.data || {};
@@ -43,7 +53,38 @@ class Tagging extends React.Component {
 			}
 		});
     }
-	
+
+    // Carousel handler functions
+    handleSelect(selectedIndex, event) {
+        this.setState({
+            carousel_id: selectedIndex,
+        });
+    }
+
+    //Tagging handler functions
+    handleTagDelete(idx) {
+        let curr_tags = this.state.curr_tags;
+        curr_tags.splice(idx,1);
+        this.setState({curr_tags: curr_tags});
+
+    }
+    handleTagAdd(tag) {
+        let curr_tags = this.state.curr_tags;
+        curr_tags.push({
+            id: curr_tags.length + 1,
+            text: tag
+        });
+        this.setState({curr_tags: curr_tags});
+
+    }
+    handleTagDrag(tag, currPos, newPos) {
+        let curr_tags = this.state.curr_tags;
+        curr_tags.splice(currPos, 1);
+        curr_tags.splice(newPos, 0, tag);
+
+        this.setState({curr_tags: curr_tags});
+    }
+
 	
 	handleChange(event) {
         const target = event.target;
@@ -197,23 +238,39 @@ class Tagging extends React.Component {
             (!this.state.isRecording ? this.props.textStart : this.props.textStop) :
             'Your browser does not support Speech Recognition.';
         
+        const { carousel_id, curr_tags, photos } = this.state;
 		return (
 
             <div>
-                <Carousel>
-                    {this.state.photos.map(photo =>
-                        <Carousel.Item>
+                <Carousel activeIndex={carousel_id} onSelect={this.handleSelect}>
+                    {photos.map((photo, idx) =>
+                        <Carousel.Item index={idx}>
                             <img src={photo.url} style={imageStyle}/>
                         </Carousel.Item>
                     )}
                 </Carousel>
 
                 <br/>
-                <div style={tagStyle}>
-                    <FormControl type="text"></FormControl>
-                    <Button bsStyle="success">Add Tags</Button>
-                </div>
-
+                <form>
+                    <FormGroup>
+                    <ControlLabel>Tags:</ControlLabel>
+                    <ReactTags 
+                        classnames={{
+                            tags: 'ReactTags__tags',
+                            tagInput: 'ReactTags__tagInput',
+                            tagInputField: 'ReactTags__tagInputField',
+                            selected: 'ReactTags__selected',
+                            tag: 'ReactTags__tag',
+                            remove: 'ReactTags__remove',
+                            suggestions: 'ReactTags__suggestions',
+                            activeSuggestions: 'ReactTags__activeSuggestion'
+                        }}
+                        tags={curr_tags}
+                        handleDelete={this.handleTagDelete}
+                        handleAddition={this.handleTagAdd}
+                        handleDrag={this.handleTagDrag} />
+                    </FormGroup>
+                </form>
                 <div style={tagStyle}>
                     <FormControl type="text"></FormControl>
                     <Button  disabled={!this.state.compatible} onClick={this.beginRecognition.bind(this)}>
