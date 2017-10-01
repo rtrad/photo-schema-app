@@ -220,13 +220,11 @@ def email():
         smtpObj.starttls()
         smtpObj.login(SENDER_ADDRESS, SENDER_PASSWORD)
         users = users_table.scan()['Items']
-        print(users)
         for user in users:
             email = user["email"]
             name = user["name"]
             username = user["username"]
-            photos = dynamo_table.scan(FilterExpression = Attr("username").eq(username))
-            print(photos)
+            photos = photos_table.scan(FilterExpression = Attr("username").eq(username))
             total = photos["Count"]
             untagged = 0
             for photo in photos["Items"]:
@@ -235,7 +233,6 @@ def email():
             smtpObj.sendmail(SENDER_ADDRESS, email,
                          'Subject: Untagged photos \n' + name
                              + ', you have ' + str(untagged) + " untagged photos out of " + str(total) + " total photos.")
-            print("Single email sent")
         smtpObj.quit()
         return "Email sent"
     except Exception as e:
