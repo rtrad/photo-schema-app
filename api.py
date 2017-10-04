@@ -179,7 +179,36 @@ def login():
     
 @app.route('/register', methods = ['POST'])
 def register():
-    return 'NOT IMPLEMENTED YET', 501
+    try:
+        username = request.form['username']
+        password = request.form['password']
+        email = request.form['email']
+        name = request.form['name']
+        
+        exists = users_table.query(
+                KeyConditionExpression=Key('username').eq(username)
+            )['Count'] > 0
+        
+        if exists:
+            return json.dumps({'error' : 'username taken'}), 409
+          
+        password = sha256_crypt.encrypt(password)
+        
+        response = users_table.put_item(
+                Item={
+                    'username' : username,
+                    'email' : email,
+                    'name' : name,
+                    'password' : password
+                },
+                ConditionExpression='attribute_not_exists(username)'
+            )
+        return json.dumps({'status' : 'login successful', 'token' : generate_token(username)}), 200
+        
+        
+    except Exception as e:
+        print e
+        return json.dumps({'error' : str(e)}), 500
 
     
 @app.route('/')
@@ -203,9 +232,7 @@ def index():
     except Exception as e:
         return render_template('home.html', photos=None)
 
-@app.route('/upload')
-def upload():
-    return render_template('upload_photo.html')
+
 
 def _allowed_file(filename):
     return '.' in filename and \
