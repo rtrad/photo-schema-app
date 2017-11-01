@@ -39,30 +39,36 @@ class MainScreen extends React.Component {
 		});
         
         
-        payload = {
-            "filters" : [
-                {
-                    "attribute" :"tags.content",
-                    "expression" : {"operation" : "contains", "value" : "beach"}
-                }
-            ]
-        };
-		$.ajax({
-			type: "POST",
-			url: 'http://localhost:5000/api/photos/filter',
-			crossDomain: true,
-			dataType: 'json',
+        
+        $.ajax({
+            type: "GET",
+            url: 'http://localhost:5000/api/recent_searches',
+            crossDomain: true,
+            dataType: 'json',
             contentType: 'application/json',
             headers: {'Authentication' : localStorage.getItem('token')},
-			success: (result)=>{
-				this.setState({
-                  photo_groups: Object.assign({}, this.state.photo_groups, {
-                    beach: result,
-                  }),
-                }); 
-			}, 
-            data : JSON.stringify(payload)
-		});
+            success: (result)=>{
+                for (var i = 0; i < result.length; i++) {
+                    payload = result[i];
+                    $.ajax({
+                        type: "POST",
+                        url: 'http://localhost:5000/api/photos/filter',
+                        crossDomain: true,
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        headers: {'Authentication' : localStorage.getItem('token')},
+                        success: (result)=>{
+                            this.setState({
+                              photo_groups: Object.assign({}, this.state.photo_groups, {
+                                i: result,
+                              }),
+                            }); 
+                        }, 
+                        data : JSON.stringify(payload)
+                    });
+                } 
+            }
+        });
     }
 	
 	
