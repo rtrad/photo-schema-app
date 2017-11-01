@@ -41,35 +41,48 @@ class Tagging extends React.Component {
     }
     
     pushTag(photo_id, tag) {
+        let payload = {'tags' : {'content' : [tag]}};
         $.ajax({
-            type: "PUT",
+            type: "POST",
             url: 'http://localhost:5000/api/photo/' + photo_id + '/tags',
             crossDomain: true,
-            dataType: 'json',
+            contentType: 'application/json',
             headers : {'Authentication' : localStorage.getItem('token')},
-            data : {'tags' : tag}
+            data : JSON.stringify(payload)
+        });
+    }
+    
+    removeTag(photo_id, tag) {
+        let payload = {'tags' : {'content' : [tag]}};
+        $.ajax({
+            type: "DELETE",
+            url: 'http://localhost:5000/api/photo/' + photo_id + '/tags',
+            crossDomain: true,
+            contentType: 'application/json',
+            headers : {'Authentication' : localStorage.getItem('token')},
+            data : JSON.stringify(payload)
         });
     }
     
     
-    fetchTags(photo_id) {
-        $.ajax({
-            type: "GET",
-            url: 'http://localhost:5000/api/photo/' + photo_id + '/tags',
-            crossDomain: true,
-            dataType: 'json',
-            headers : {'Authentication' : localStorage.getItem('token')},
-            success: (result)=>{
-                let tags = [];
+    // fetchTags(photo_id) {
+        // $.ajax({
+            // type: "GET",
+            // url: 'http://localhost:5000/api/photo/' + photo_id + '/tags',
+            // crossDomain: true,
+            // dataType: 'json',
+            // headers : {'Authentication' : localStorage.getItem('token')},
+            // success: (result)=>{
+                // let tags = [];
                 
-                this.state.photos[this.state.carousel_id].tags.forEach(
-                    function(tag, index) {
-                        tags.push({id: index, text: tag.value})
-                    });
-                this.setState({curr_tags : tags});
-            }
-        });
-    }
+                // this.state.photos[this.state.carousel_id].tags.forEach(
+                    // function(tag, index) {
+                        // tags.push({id: index, text: tag})
+                    // });
+                // this.setState({curr_tags : tags});
+            // }
+        // });
+    // }
     
     fetchPhotos() {
         $.ajax({
@@ -83,9 +96,9 @@ class Tagging extends React.Component {
                 
                 let tags = [];
                 
-                this.state.photos[this.state.carousel_id].tags.forEach(
+                this.state.photos[this.state.carousel_id].tags.content.forEach(
                     function(tag, index) {
-                        tags.push({id: index, text: tag.value})
+                        tags.push({id: index, text: tag})
                     });
                 this.setState({curr_tags : tags});
             }
@@ -99,10 +112,10 @@ class Tagging extends React.Component {
         });
         
         let tags = [];
-        
-        (this.state.photos[selectedIndex].tags.forEach(
+        console.log(this.state);
+        (this.state.photos[selectedIndex].tags.content.forEach(
             function (tag, index) {
-                tags.push({id : index, text: tag.value});
+                tags.push({id : index, text: tag});
             }
         ));
         this.setState({curr_tags : tags});
@@ -111,8 +124,11 @@ class Tagging extends React.Component {
     //Tagging handler functions
     handleTagDelete(idx) {
         let curr_tags = this.state.curr_tags;
-        curr_tags.splice(idx,1);
+        let tag = curr_tags.splice(idx,1)[0];
+        console.log(tag);
+        tag = tag.text;
         this.setState({curr_tags: curr_tags});
+        this.removeTag(this.state.photos[this.state.carousel_id].photo_id, tag);
 
     }
     handleTagAdd(tag) {
