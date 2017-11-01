@@ -363,6 +363,9 @@ def email():
     except Exception as e:
         return "Email not sent" + str(e)
 
+@app.route('/api/recent_searches')
+def get_recent_searches():
+
 
         
         
