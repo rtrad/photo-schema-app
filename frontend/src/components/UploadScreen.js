@@ -107,7 +107,7 @@ export default class UploadScreen extends Component {
       <Grid><Col xs={6} md={6}>
         <section>
         <Dropzone  onDrop={ (photos) => this.onDrop(photos) } accept="image/jpeg,image/jpg,image/tiff,image/gif" multiple={ false } onDropRejected={ handleDropRejected } >
-          Drag a file here or click to upload.
+          Drag one file or click here to select a photo to upload. Please drop or select one photo at a time.
         </Dropzone>
         </section>
         <Form onSubmit = {this.handleClick}>
