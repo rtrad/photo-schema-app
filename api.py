@@ -52,13 +52,13 @@ def get_photo(photo_id):
 def add_photo():
     try:
         file = request.files['file']
-        
+
         if not file.filename == '' and _allowed_file(file.filename):
             photo_id = str(uuid.uuid4())
             extension = file.filename.split('.')[-1]
-            
+
             filename = FILE_FORMAT_S3.format(user=g.username, id=photo_id, extension=extension)
-            
+
             s3.upload_fileobj(file, BUCKET_NAME, filename)
             response = photos_table.put_item(
                     Item={
@@ -69,7 +69,7 @@ def add_photo():
                         'upload_time' : int((datetime.utcnow() - datetime(1970, 1,1)).total_seconds())
                     }
                 )
-            
+
             return json.dumps({"photo_id" : photo_id}), 200
     except Exception as e:
         return json.dumps({"error" : str(e)}), 500
@@ -99,7 +99,7 @@ def get_photos():
     except Exception as e:
        return json.dumps({"error" : str(e)}), 500
 
-    
+
 @app.route('/api/photo/<photo_id>', methods = ['DELETE'])
 @authenticate
 def delete_photo(photo_id):
@@ -119,8 +119,8 @@ def delete_photo(photo_id):
         return '200 OK'
     except Exception as e:
         return json.dumps({"error" : str(e)}), 500
-    
-    
+
+
 @app.route('/api/photo/<photo_id>/tags', methods = ['GET'])
 @authenticate
 def get_tags(photo_id):
@@ -144,7 +144,7 @@ def put_tags(photo_id):
     try:
         data = request.get_json()
         tags = data['tags']
-        
+
         for type in tags.iterkeys():
             tag = tags[type]
             count = len(tag)
@@ -165,7 +165,7 @@ def put_tags(photo_id):
                     },
                     ReturnValues='ALL_NEW'
                 )
-                
+
         photo = response['Attributes']
         return json.dumps({"updated" : photo}), 200
     except Exception as e:
@@ -177,10 +177,10 @@ def delete_tags(photo_id):
     try:
         data = request.get_json()
         tags = data['tags']
-        
+
         for type in tags.iterkeys():
             tag = tags[type]
-            
+
             response = photos_table.get_item(
                     Key={
                         'photo_id' : photo_id,
@@ -217,31 +217,31 @@ def delete_tags(photo_id):
                     },
                     ReturnValues='ALL_NEW'
                 )
-                
+
         photo = response['Attributes']
         return json.dumps({"updated" : photo}), 200
     except Exception as e:
         return json.dumps({"error" : str(e)}), 500
 
-    
+
 @app.route('/api/photos/filter', methods = ['POST'])
 @authenticate
 def filter():
     try:
         query_filter = Attr('username').eq(g.username)
-        
+
         data = request.get_json()
         filters = data['filters']
         for query in filters:
             new_filter = _format_filter(query['attribute'], query['expression'])
             query_filter = query_filter & new_filter if new_filter else query_filter
-            
+
         response = photos_table.scan(
                 FilterExpression=query_filter,
                 ProjectionExpression='photo_id, upload_time, tags, s3_key',
                 Limit=30
             )
-            
+
         photos = response['Items']
         for photo in photos:
             key = photo['s3_key']
@@ -255,11 +255,11 @@ def filter():
             photo['url'] = url
             del photo['s3_key']
         return json.dumps(photos), 200
-        
+
     except Exception as e:
        return json.dumps({"error" : str(e)}), 500
-       
-    
+
+
 
 @app.route('/login', methods = ['POST'])
 def login():
@@ -279,7 +279,7 @@ def login():
             return json.dumps({'status' : 'login failed' }), 422
     except Exception as e:
         return json.dumps({"error" : str(e)}), 500
-    
+
 @app.route('/register', methods = ['POST'])
 def register():
     try:
@@ -287,17 +287,17 @@ def register():
         password = request.values.get('password')
         email = request.values.get('email')
         name = request.values.get('name')
-        
+
         exists = users_table.query(
                 KeyConditionExpression=Key('username').eq(username),
                 Limit=1
             )['Count'] > 0
-        
+
         if exists:
             return json.dumps({'error' : 'username taken'}), 409
-          
+
         password = sha256_crypt.encrypt(password)
-        
+
         response = users_table.put_item(
                 Item={
                     'username' : username,
@@ -308,13 +308,13 @@ def register():
                 ConditionExpression='attribute_not_exists(username)'
             )
         return json.dumps({'status' : 'login successful', 'token' : generate_token(username)}), 200
-        
-        
+
+
     except Exception as e:
         print e
         return json.dumps({'error' : str(e)}), 500
 
-    
+
 # @app.route('/')
 # def index():
     # try:
@@ -363,17 +363,17 @@ def email():
     except Exception as e:
         return "Email not sent" + str(e)
 
-@app.route('/api/recent_searches')
-def get_recent_searches():
+#@app.route('/api/recent_searches')
+#def get_recent_searches():
 
 
-        
-        
+
+
 def _allowed_file(filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS      
-           
-        
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
 def _format_filter(attribute, expression):
     conditions = {
         'begins_with' : {
@@ -425,7 +425,7 @@ def _format_filter(attribute, expression):
                 'requires' : set([])
             }
     }
-    
+
     if type(expression) is dict:
         if 'operation' in expression and expression['operation'] in conditions:
             if conditions[expression['operation']]['requires'].issubset(expression.keys()):

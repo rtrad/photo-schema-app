@@ -1,6 +1,6 @@
 
-AWS_ACCESS_KEY_ID = 'secret'
-AWS_SECRET_ACCESS_KEY = 'secret'
+AWS_ACCESS_KEY_ID = ''
+AWS_SECRET_ACCESS_KEY = ''
 
 BUCKET_NAME = 'photo-schema-app'
 PHOTOS_TABLE = 'photos'
@@ -13,4 +13,4 @@ APP_KEY = 'secret'
 SMPT_SERVER = 'smtp.gmail.com'
 SMPT_PORT = 587
 SENDER_ADDRESS = 'photoschema@gmail.com'
-SENDER_PASSWORD = 'secret'
+SENDER_PASSWORD = 'qwwaizrepjtebqxa'

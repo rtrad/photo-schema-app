@@ -5,8 +5,10 @@ import FontIcon from 'material-ui/FontIcon';
 import {blue500, red500, greenA200} from 'material-ui/styles/colors';
 import RaisedButton from 'material-ui/RaisedButton';
 import {Grid, Col} from "react-bootstrap";
+import {Form, Button} from 'react-bootstrap';
 import $ from "jquery";
 
+const handleDropRejected = (...args) => console.log('reject', args)
 
 export default class UploadScreen extends Component {
 
@@ -15,11 +17,18 @@ export default class UploadScreen extends Component {
     this.state = {
       filesPreview:[],
       filesToBeSent:[],
-      photoCount:10
+      photoCount:10,
+      preview: null
     }
+    this.handleClick = this.handleClick.bind(this)
+    this.handleDrop = this.handleDrop.bind(this)
   }
+
+  handleDrop([{ preview }]) {
+    this.setState({preview})
+  }
+
   onDrop(acceptedFiles, rejectedFiles) {
-  // ('Accepted files: ', acceptedFiles[0].name);
     console.log(acceptedFiles);
     var filesToBeSent = this.state.filesToBeSent;
     if (filesToBeSent.length < this.state.photoCount) {
@@ -33,37 +42,38 @@ export default class UploadScreen extends Component {
         )
       }
       this.setState({filesToBeSent,filesPreview});
+      this.handleDrop(filesToBeSent[(filesToBeSent.length) - 1]);
     }
     else {
       alert("You have reached the limit of files you can upload at one time.")
     }
-    //filesToBeSent.push(acceptedFiles);
-    //this.setState({filesToBeSent});
   }
 
   handleClick(event) {
     console.log("handleClick",event);
-    var self = this;
+    event.preventDefault();
     if (this.state.filesToBeSent.length > 0) {
       var filesArray = this.state.filesToBeSent;
       for (var i in filesArray) {
         var fd = new FormData();
         fd.append("file",filesArray[i]);
+        $.ajax ({type:"POST",
+          url:"http://localhost:5000/api/photo",
+          data:fd,
+          processData: false,
+          contentType: false,
+          headers: {Authentication: localStorage.getItem("token")},
+          crossDomain: true
+        });
       }
-      $.ajax ({
-        type:'POST',
-        url:'http://localhost:5000/api/photo',
-        data: fd,
-        dataType: "JSON",
-        processData: false,
-        contentType: false
-      });
       alert("File upload successful!");
       var filesPreview = this.state.filesPreview;
       var filesToBeSent = this.state.filesToBeSent;
+      var preview = this.state.preview;
       filesPreview = [];
       filesToBeSent = [];
-      this.setState({filesToBeSent, filesPreview})
+      preview = null;
+      this.setState({filesToBeSent, filesPreview, preview})
     }
     else {
       alert("There are no files to upload.");
@@ -73,26 +83,38 @@ export default class UploadScreen extends Component {
   handleClear(event, fileName) {
     var filesPreview = this.state.filesPreview;
     var filesToBeSent = this.state.filesToBeSent;
+    var preview = this.state.preview;
     filesPreview = [];
     filesToBeSent = [];
-    this.setState({filesToBeSent, filesPreview})
+    preview = null;
+    this.setState({filesToBeSent, filesPreview, preview})
+  }
+
+  handleClearLast(event) {
+    var filesPreview = this.state.filesPreview;
+    var filesToBeSent = this.state.filesToBeSent;
+    var preview = this.state.preview;
+    filesPreview.pop();
+    filesToBeSent.pop();
+    preview = null;
+    this.setState({filesToBeSent, filesPreview, preview})
   }
 
   render() {
+    const { preview } = this.state
+
     return (
       <Grid><Col xs={6} md={6}>
-        <Dropzone onDrop = {(photos) => this.onDrop(photos)}>
-          <div>
-            Drop files here to upload or click in the box to select files to upload.
-          </div>
+        <section>
+        <Dropzone  onDrop={ (photos) => this.onDrop(photos) } accept="image/jpeg,image/jpg,image/tiff,image/gif" multiple={ false } onDropRejected={ handleDropRejected } >
+          Drag a file here or click to upload.
         </Dropzone>
-        <MuiThemeProvider>
-            <RaisedButton
-              label = "Upload"
-              primary = {true}
-              onClick = {(event) => this.handleClick(event)}
-            />
-        </MuiThemeProvider>
+        </section>
+        <Form onSubmit = {this.handleClick}>
+          <Button type = 'submit'>
+            Upload
+          </Button>
+        </Form>
 
         <MuiThemeProvider>
             <RaisedButton
@@ -101,6 +123,21 @@ export default class UploadScreen extends Component {
               onClick = {(event) => this.handleClear(event)}
             />
         </MuiThemeProvider>
+
+        <MuiThemeProvider>
+            <RaisedButton
+              label = "Clear Last"
+              primary = {true}
+              onClick = {(event) => this.handleClearLast(event)}
+            />
+        </MuiThemeProvider>
+
+        <div>
+          The photo that was just added to the list is:
+          { preview &&
+          <img src={ preview } alt="image preview" height="200" width="200" />
+          }
+        </div>
 
         <div>
           Photos to be uploaded are:
