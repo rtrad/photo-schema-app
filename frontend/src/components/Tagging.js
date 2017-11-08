@@ -241,7 +241,7 @@ class Tagging extends React.Component {
         cleanBuffer.forEach(function(element){
         	console.log(element);
         	this.handleTagAdd(element);
-        });
+        }, this);
 
 
         //this.handleTagAdd(cleanBuffer);
