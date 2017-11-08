@@ -254,6 +254,20 @@ def filter():
             )
             photo['url'] = url
             del photo['s3_key']
+            
+        if not 'from recent' in data or not data['from recent']:
+            new_filter = {}
+            new_filter['filters'] = filters
+            new_filter['time'] = int((datetime.utcnow() - datetime(1970, 1,1)).total_seconds())
+            users_table.update_item(
+                    Key={
+                            'username' : g.username
+                    },
+                    UpdateExpression='SET searches = list_append(searches, :newfilter)',
+                    ExpressionAttributeValues={
+                        ':newfilter' : [new_filter]
+                    }
+                );
         return json.dumps(photos), 200
 
     except Exception as e:
@@ -313,7 +327,23 @@ def register():
     except Exception as e:
         print e
         return json.dumps({'error' : str(e)}), 500
+        
 
+@app.route('/api/recent_searches', methods = ['GET'])
+@authenticate
+def get_recent_searches():
+    try:
+        response = users_table.query(
+                KeyConditionExpression=Key('username').eq('admin'),
+                Limit=1,
+                ProjectionExpression='searches'
+            );
+        searches = response['Items'][0]['searches']
+        searches = searches[0:3]
+        return json.dumps({"searches" : searches}), 200
+
+    except Exception as e:
+       return json.dumps({"error" : str(e)}), 500
 
 # @app.route('/')
 # def index():
@@ -362,11 +392,6 @@ def email():
         return "Email sent"
     except Exception as e:
         return "Email not sent" + str(e)
-
-#@app.route('/api/recent_searches')
-#def get_recent_searches():
-
-
 
 
 def _allowed_file(filename):

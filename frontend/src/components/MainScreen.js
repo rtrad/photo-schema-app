@@ -12,6 +12,28 @@ class MainScreen extends React.Component {
         this.handleSearch = this.handleSearch.bind(this);
 	}
     
+    
+    fetchPreviousSearch(id, filter) {
+        var payload = filter;
+        payload['from recent'] = true;
+        $.ajax({
+            type: "POST",
+            url: 'http://localhost:5000/api/photos/filter',
+            crossDomain: true,
+            dataType: 'json',
+            contentType: 'application/json',
+            headers: {'Authentication' : localStorage.getItem('token')},
+            success: (result)=>{
+                var resultObj = {};
+                resultObj[id] = result;
+                this.setState({
+                  photo_groups: Object.assign({}, this.state.photo_groups, resultObj),
+                }); 
+            }, 
+            data : JSON.stringify(payload)
+        });
+    }
+    
     fetchPhotos() {
         let payload = {
             "filters" : [
@@ -39,7 +61,6 @@ class MainScreen extends React.Component {
 		});
         
         
-        
         $.ajax({
             type: "GET",
             url: 'http://localhost:5000/api/recent_searches',
@@ -48,24 +69,15 @@ class MainScreen extends React.Component {
             contentType: 'application/json',
             headers: {'Authentication' : localStorage.getItem('token')},
             success: (result)=>{
-                for (var i = 0; i < result.length; i++) {
-                    payload = result[i];
-                    $.ajax({
-                        type: "POST",
-                        url: 'http://localhost:5000/api/photos/filter',
-                        crossDomain: true,
-                        dataType: 'json',
-                        contentType: 'application/json',
-                        headers: {'Authentication' : localStorage.getItem('token')},
-                        success: (result)=>{
-                            this.setState({
-                              photo_groups: Object.assign({}, this.state.photo_groups, {
-                                i: result,
-                              }),
-                            }); 
-                        }, 
-                        data : JSON.stringify(payload)
-                    });
+                for (var i = 0; i < result.searches.length; i++) {
+                    payload = result.searches[i];
+                    var options = {  
+                        weekday: "long", year: "numeric", month: "short",  
+                        day: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit"
+                    }; 
+                    var date = new Date(result.searches[i].time * 1000);
+                    var id = 'previous search from ' + date.toLocaleTimeString("en-us", options);
+                    this.fetchPreviousSearch(id, payload);
                 } 
             }
         });
