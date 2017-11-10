@@ -6,6 +6,7 @@ import {blue500, red500, greenA200} from 'material-ui/styles/colors';
 import RaisedButton from 'material-ui/RaisedButton';
 import {Grid, Col} from "react-bootstrap";
 import {Form, Button} from 'react-bootstrap';
+import {ListGroup, ListGroupItem} from 'react-bootstrap';
 import $ from "jquery";
 
 const handleDropRejected = (...args) => console.log('reject', args)
@@ -15,34 +16,29 @@ export default class UploadScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      filesPreview:[],
       filesToBeSent:[],
-      photoCount:10,
-      preview: null
+      photoCount:100,
+      photoURLs: [],
+      photosAdded:0
     }
     this.handleClick = this.handleClick.bind(this)
-    this.handleDrop = this.handleDrop.bind(this)
-  }
-
-  handleDrop([{ preview }]) {
-    this.setState({preview})
   }
 
   onDrop(acceptedFiles, rejectedFiles) {
     console.log(acceptedFiles);
     var filesToBeSent = this.state.filesToBeSent;
+    var photoURLs = this.state.photoURLs;
     if (filesToBeSent.length < this.state.photoCount) {
-      filesToBeSent.push(acceptedFiles);
-      var filesPreview = [];
-      for(var i in filesToBeSent) {
-        filesPreview.push(
-          <div>
-            {filesToBeSent[i][0].name}
-          </div>
-        )
+      for (var i in acceptedFiles) {
+        filesToBeSent.push(acceptedFiles[i]);
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          photoURLs.push(e.target.result);
+        }
+        reader.readAsDataURL(acceptedFiles[i]);
       }
-      this.setState({filesToBeSent,filesPreview});
-      this.handleDrop(filesToBeSent[(filesToBeSent.length) - 1]);
+    var photosAdded = acceptedFiles.length;
+    this.setState({filesToBeSent,photoURLs,photosAdded});
     }
     else {
       alert("You have reached the limit of files you can upload at one time.")
@@ -52,11 +48,12 @@ export default class UploadScreen extends Component {
   handleClick(event) {
     console.log("handleClick",event);
     event.preventDefault();
-    if (this.state.filesToBeSent.length > 0) {
-      var filesArray = this.state.filesToBeSent;
-      for (var i in filesArray) {
+    var filesArray = this.state.filesToBeSent;
+    if (filesArray.length > 0) {
+      for (var i = 0; i < filesArray.length; i++) {
         var fd = new FormData();
-        fd.append("file",filesArray[i]);
+        fd.append('file', filesArray[i]);
+        console.log(fd);
         $.ajax ({type:"POST",
           url:"http://localhost:5000/api/photo",
           data:fd,
@@ -67,58 +64,60 @@ export default class UploadScreen extends Component {
         });
       }
       alert("File upload successful!");
-      var filesPreview = this.state.filesPreview;
       var filesToBeSent = this.state.filesToBeSent;
-      var preview = this.state.preview;
-      filesPreview = [];
       filesToBeSent = [];
-      preview = null;
-      this.setState({filesToBeSent, filesPreview, preview})
+      this.setState({filesToBeSent})
     }
     else {
       alert("There are no files to upload.");
     }
   }
 
-  handleClear(event, fileName) {
-    var filesPreview = this.state.filesPreview;
+  handleClear(event) {
     var filesToBeSent = this.state.filesToBeSent;
-    var preview = this.state.preview;
-    filesPreview = [];
+    var photoURLs = this.state.photoURLs;
+    var photosAdded = 0;
     filesToBeSent = [];
-    preview = null;
-    this.setState({filesToBeSent, filesPreview, preview})
+    photoURLs = [];
+    this.setState({filesToBeSent, photoURLs, photosAdded})
   }
 
   handleClearLast(event) {
-    var filesPreview = this.state.filesPreview;
     var filesToBeSent = this.state.filesToBeSent;
-    var preview = this.state.preview;
-    filesPreview.pop();
-    filesToBeSent.pop();
-    preview = null;
-    this.setState({filesToBeSent, filesPreview, preview})
+    var photoURLs = this.state.photoURLs;
+    var photosAdded = this.state.photosAdded;
+    for (var i = 0; i < photosAdded; i++) {
+      filesToBeSent.pop();
+      photoURLs.pop();
+    }
+    photosAdded = 0;
+    this.setState({filesToBeSent, photoURLs, photosAdded})
   }
 
-  render() {
-    const { preview } = this.state
+  handleReload() {
+    var filesToBeSent = this.state.filesToBeSent;
+    var photoURLs = this.state.photoURLs;
+    this.setState({filesToBeSent, photoURLs})
+  }
 
+
+  render() {
     return (
       <Grid><Col xs={6} md={6}>
-        <section>
-        <Dropzone  onDrop={ (photos) => this.onDrop(photos) } accept="image/jpeg,image/jpg,image/tiff,image/gif" multiple={ false } onDropRejected={ handleDropRejected } >
-          Drag one file or click here to select a photo to upload. Please drop or select one photo at a time.
-        </Dropzone>
-        </section>
+            <section>
+            <Dropzone onDrop={ (photos) => this.onDrop(photos) } accept="image/jpeg,image/jpg,image/tiff,image/gif,image/png,image/bmp,image/tif" multiple={ true } onDropRejected={ handleDropRejected}>
+              Drag one file or click here to select a photo to upload. Please drop or select one photo at a time.
+            </Dropzone>
+            </section>
         <Form onSubmit = {this.handleClick}>
-          <Button type = 'submit'>
-            Upload
-          </Button>
+            <Button type = 'submit'>
+              Upload
+            </Button>
         </Form>
 
         <MuiThemeProvider>
             <RaisedButton
-              label = "Clear"
+              label = "Clear All"
               primary = {true}
               onClick = {(event) => this.handleClear(event)}
             />
@@ -126,23 +125,29 @@ export default class UploadScreen extends Component {
 
         <MuiThemeProvider>
             <RaisedButton
-              label = "Clear Last"
+              label = "Undo"
               primary = {true}
               onClick = {(event) => this.handleClearLast(event)}
             />
         </MuiThemeProvider>
 
-        <div>
-          The photo that was just added to the list is:
-          { preview &&
-          <img src={ preview } alt="image preview" height="200" width="200" />
-          }
-        </div>
+        <MuiThemeProvider>
+            <RaisedButton
+              label = "Load Preview"
+              primary = {true}
+              onClick = {(event) => this.handleReload(event)}
+            />
+        </MuiThemeProvider>
 
-        <div>
-          Photos to be uploaded are:
-          {this.state.filesPreview}
-        </div>
+        <ListGroup>
+          <div>
+           <ListGroupItem>
+              {this.state.photoURLs.map(photo =>
+              <img src={ photo } alt="image preview" height="200" width="200" />
+              )}
+              </ListGroupItem>
+            </div>
+  			</ListGroup>
 
       </Col></Grid>
     );
