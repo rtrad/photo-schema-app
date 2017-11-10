@@ -226,7 +226,7 @@ class Tagging extends React.Component {
             buffer.push(transcribed || word);
         });
         //this is where I will take out articles.*********************************************
-        var articles = ['this', 'a', 'the', 'is', 'there','are','they']; 
+        var articles = ['an','that','other','hm','this', 'a', 'the', 'is', 'there','are','they', '',' ','  ']; 
         const cleanBuffer = [];
         buffer.forEach(function(element){
            if(articles.includes(element)){
