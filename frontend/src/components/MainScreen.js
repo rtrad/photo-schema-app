@@ -46,7 +46,8 @@ class MainScreen extends React.Component {
                     "attribute" :"tags.count",
                     "expression" : {"operation" : "eq", "value" : 0}
                 }
-            ]
+            ],
+            "from recent" : true
         };
 		$.ajax({
 			type: "POST",

@@ -20,7 +20,6 @@ dynamodb = boto_session.resource('dynamodb', region_name='us-west-2')
 photos_table = dynamodb.Table(PHOTOS_TABLE)
 users_table = dynamodb.Table(USERS_TABLE)
 
-users_table = dynamodb.Table('users')
 
 app = Flask(__name__)
 CORS(app)
@@ -263,7 +262,7 @@ def filter():
                     Key={
                             'username' : g.username
                     },
-                    UpdateExpression='SET searches = list_append(searches, :newfilter)',
+                    UpdateExpression='SET searches = list_append(:newfilter, searches)',
                     ExpressionAttributeValues={
                         ':newfilter' : [new_filter]
                     }
@@ -336,10 +335,10 @@ def get_recent_searches():
         response = users_table.query(
                 KeyConditionExpression=Key('username').eq('admin'),
                 Limit=1,
-                ProjectionExpression='searches'
+                ProjectionExpression='searches[0], searches[1], searches[2]'
             );
-        searches = response['Items'][0]['searches']
-        searches = searches[0:3]
+        
+        searches = response['Items'][0]['searches'] if 'searches' in response['Items'][0] else []
         return json.dumps({"searches" : searches}), 200
 
     except Exception as e:
