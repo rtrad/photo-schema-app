@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-
 import {Nav, Navbar, NavItem} from 'react-bootstrap';
 
 
@@ -36,6 +35,9 @@ class Header extends React.Component {
                         </NavItem>
                     </Nav>
                     <Nav pullRight>
+                        <NavItem>
+                            <Link to='/profile'>Profile</Link>
+                        </NavItem>
                         <NavItem>
                             <Link to='/' onClick={this.handleLogout}>Logout</Link>
                         </NavItem>
