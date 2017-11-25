@@ -1,20 +1,22 @@
 import React from 'react';
 import $ from 'jquery';
 import {ListGroup, ListGroupItem, Form, FormGroup, Button, FormControl, Grid, Row, Col} from 'react-bootstrap';
+import SearchBar from './SearchBar';
+import SearchResults from './SearchResults';
 
 class MainScreen extends React.Component {
 	constructor(props) {
 		super(props);
         
 		this.state = {
-		    searchquery : '',
 		    photo_groups: {},
 		    search_results: [],
-		    show_search: false
+		    query: null,
+		    show_search: false,
+		    rangepicker_focus: null
 		};
 		this.fetchPhotos();
         this.handleChange = this.handleChange.bind(this);
-        this.handleSearch = this.handleSearch.bind(this);
 	}
     
     
@@ -94,55 +96,37 @@ class MainScreen extends React.Component {
         const target = event.target;
         this.setState({[target.name]: target.value}); 
 	}
+
+	displaySearch = (tag,sd,ed,r) => {
+	    this.setState({
+            search_results: r,
+            query: {
+                "start": sd,
+                "end": ed,
+                "tag": tag
+            },
+            show_search: true
+        });
+    }
 	
-    handleSearch(event) {
-        event.preventDefault();
-        let payload = {
-            "filters": [
-                {
-                    "attribute": "tags.content",
-                    "expression": {"operation": "contains", value: this.state.searchquery}
-                }
-            ]
-        }
-        $.ajax({
-			type: "POST",
-			url: 'http://localhost:5000/api/photos/filter',
-			crossDomain: true,
-			dataType: 'json',
-            contentType: 'application/json',
-            headers: {'Authentication' : localStorage.getItem('token')},
-			success: (result)=>{
-				this.setState({
-                  photo_groups: {
-                    ["Search result for tag " + this.state.searchquery] : result
-                  }
-                }); 
-			}, 
-            data : JSON.stringify(payload)
-		});
+    onSearchClose = (e) => {
+        this.setState({
+            search_results: [],
+            query: null,
+            show_search: false
+        });
     }
 
-   
     render() {
 		return (
 		    <Grid>
-		    <Form horizontal onSubmit={this.handleSearch}>
-		        <FormGroup>
-                    <Col md={10}>
-                    <FormControl
-                        name="searchquery"
-                        type="input"
-                        value={this.state.searchquery}
-                        placeholder="Enter search query"
-                        onChange={this.handleChange}/>
-                    </Col>
-		            <Col md={2}>
-                    <Button type="submit">Search</Button>
-                    </Col>
-                </FormGroup>
-		    </Form>
+            <SearchBar onSearch={this.displaySearch}/>
 		    <Row>
+		    <SearchResults
+		        onClose={this.onSearchClose}
+		        results={this.state.search_results}
+		        query={this.state.query}
+		        show={this.state.show_search}/>
 			<ListGroup>
                 {Object.keys(this.state.photo_groups).map(key => 
                     <div>
