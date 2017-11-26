@@ -125,6 +125,22 @@ class MainScreen extends React.Component {
 
    
     render() {
+        var imageStyle = {
+            width: "600px",
+            overflow: "auto",
+            display: "inline"
+        };
+        var scrollingWrapper = {
+            "overflow-x": "scroll",
+            "overflow-y": "hidden",
+            "white-space": "nowrap",
+        }
+        var card = {
+                display: "inline-block",
+                width: "100",
+                margin: "5",
+        }
+        
 		return (
 		    <Grid>
 		    <Form horizontal onSubmit={this.handleSearch}>
@@ -147,11 +163,13 @@ class MainScreen extends React.Component {
                 {Object.keys(this.state.photo_groups).map(key => 
                     <div>
                     <h3>{key}</h3>
-                    <ListGroupItem>
+                    <div style = {imageStyle}>
+                    <ListGroupItem style = {scrollingWrapper}>
                     {this.state.photo_groups[key].map(photo =>
-                        <img src={photo.url} width={100}></img>
+                        <img src={photo.url} style = {card}></img>
                     )}
                     </ListGroupItem>
+                    </div>
                     </div>
                 )}
 			</ListGroup>
