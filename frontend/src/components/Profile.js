@@ -1,6 +1,8 @@
 import React, { Component, PropTypes } from 'react';
 import $ from 'jquery';
 import { Modal, Form, FormGroup, FormControl, ControlLabel, Col, Button } from 'react-bootstrap'; 
+import {Nav, Navbar, NavItem} from 'react-bootstrap';
+
 
 const initialState = {
 	username:'',
@@ -81,6 +83,7 @@ class Profile extends React.Component{
             headers: {'Authentication' : localStorage.getItem('token')},
 			success: (result)=>{
 				alert('User profile successfully updated');
+                this.context.router.history.push('/home');
 			}, 
 			error: (result)=>{
 				alert('User profile failed to update');
@@ -133,5 +136,8 @@ class Profile extends React.Component{
     }
 
 }
+Profile.contextTypes = {
+  router: React.PropTypes.func.isRequired
+};
 
 export default Profile;
