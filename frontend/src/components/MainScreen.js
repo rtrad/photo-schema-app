@@ -85,12 +85,10 @@ class MainScreen extends React.Component {
                     payload = result.searches[i];
 					var searchTerms = [];
 					payload.filters.forEach((currentValue) => {
-						console.log(currentValue);
 						if (currentValue.expression && currentValue.expression.value){
 							searchTerms.push(currentValue.expression.value);
 						}
 					});
-					console.log(searchTerms);
                     var id = 'previous search: ' + searchTerms.join(', ');
                     this.fetchPreviousSearch(id, payload);
                 } 
@@ -152,8 +150,7 @@ class MainScreen extends React.Component {
     onSearchClose = (e) => {
 		console.log('hide search');
         this.setState({
-            search_results: [],
-            query: null,
+            query: '',
             show_search: false
         });
     }

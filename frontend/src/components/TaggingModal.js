@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {Modal, Carousel, Grid, Row, Col, FormGroup, ControlLabel, Button, Glyphicon, Image} from 'react-bootstrap';
 import {WithContext as ReactTags} from 'react-tag-input';
 import tag_style from '../react-tags.css'
+import momentPropTypes from 'react-moment-proptypes';
 
 const initialState = {
 	carouselIndex : 0,
@@ -46,7 +47,12 @@ export default class TaggingModal extends React.Component {
 		textStop: PropTypes.string,
 		textUnsupported: PropTypes.string,
 		wrapTokens: PropTypes.string,
-		wrapUnknown: PropTypes.string
+		wrapUnknown: PropTypes.string,
+        query: PropTypes.shape({
+            start: momentPropTypes.momentObj,
+            end: momentPropTypes.momentObj,
+            tag: PropTypes.string
+        })
 	}
 	
 	static defaultProps = {
@@ -60,7 +66,8 @@ export default class TaggingModal extends React.Component {
 		textStop: 'Stop Recording',
 		textUnsupported: 'Your browser does not support Speech Recognition.',
 		wrapTokens: '',
-		wrapUnknown: ''
+		wrapUnknown: '',
+        query: null,
 	}
 	
 	//Start of voice function
@@ -255,6 +262,16 @@ export default class TaggingModal extends React.Component {
         curr_tags.splice(newPos, 0, tag);
     }
 	
+	getTitle = () => {
+        if (this.props.query != null) {
+            return "Search results for tag \"" + this.props.query.tag + "\"";
+        } else if (this.props.photos.length > 1) {
+			return "Tag Photos";
+		} else {
+			return "Tag Photo";
+		}
+    }
+	
 	render() {
 		var carouselItemStyle = {
 				display: "block",
@@ -273,7 +290,7 @@ export default class TaggingModal extends React.Component {
 			<Modal show={this.props.show} onHide={this.handleClose} bsSize={'lg'}>
 				<Modal.Header closeButton>
 					<Modal.Title>
-						Tag Photo{this.props.photos.length > 1 ? 's' : ''}
+						{this.getTitle()}
 						<a className={"pull-right"} 
 							download={this.props.photos.length > 0 ? this.props.photos[this.state.carouselIndex].url : "#"}
 							href={this.props.photos.length > 0 ? this.props.photos[this.state.carouselIndex].url : "#"}>

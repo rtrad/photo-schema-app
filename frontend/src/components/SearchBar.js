@@ -13,7 +13,8 @@ export default class SearchBar extends React.Component {
             tag: "",
             start_date: null,
             end_date: null,
-            rangepicker_focus: null
+            rangepicker_focus: null,
+			loading: false
         }
     }
 
@@ -28,6 +29,7 @@ export default class SearchBar extends React.Component {
 
     handleSearch = (e) => {
         e.preventDefault();
+		this.setState({loading : true});
         let date_filter = null
         if (this.state.start_date != null ||
             this.state.end_date != null) {
@@ -72,7 +74,10 @@ export default class SearchBar extends React.Component {
 			dataType: 'json',
             contentType: 'application/json',
             headers: {'Authentication' : localStorage.getItem('token')},
-			success: (result) => this.completedSearch(result), 
+			success: (result) => {
+				this.completedSearch(result),
+				this.setState({loading : false});
+			}, 
             data : JSON.stringify(payload)
 		});
     }
@@ -117,7 +122,7 @@ export default class SearchBar extends React.Component {
                         />
                     </Col>
                     <Col md={3}>
-                        <Button bsStyle="primary" type="submit">Search</Button>
+                        <Button bsStyle="primary" disabled={this.state.loading} type="submit">{this.state.loading ? "Searching ..." : "Search"}</Button>
                     </Col>
                 </FormGroup>
 		    </Form>
