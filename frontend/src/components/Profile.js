@@ -3,10 +3,11 @@ import $ from 'jquery';
 import { Modal, Form, FormGroup, FormControl, ControlLabel, Col, Button } from 'react-bootstrap'; 
 
 const initialState = {
-    newemail:'',
-    newpassword: '',
-    confirmnewpassword: '',
-    days: ''
+	username:'',
+    email:'',
+    password: '',
+    confirmpassword: '',
+    days: 0
 };
 
 
@@ -17,11 +18,27 @@ class Profile extends React.Component{
         this.state = initialState;
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-
+		this.fetchUser();
     
 
     }
 
+	fetchUser() {
+		$.ajax({
+			type: "GET",
+			url: 'http://localhost:5000/api/user',
+			crossDomain: true,
+			dataType: 'json',
+            contentType: 'application/json',
+            headers: {'Authentication' : localStorage.getItem('token')},
+			success: (result)=>{
+				this.setState({'username':result.user.username});
+				this.setState({'days':result.user.notification});
+				this.setState({'email':result.user.email});
+			}
+		});
+	}
+	
     handleChange(event) {
         const target = event.target;
         this.setState({[target.name]: target.value});        
@@ -30,53 +47,50 @@ class Profile extends React.Component{
     handleSubmit(event) {
         event.preventDefault();
         var formData = {
-            newemail : this.state.newemail,
-            newpassword : this.state.newpassword,
-            confirmnewpassword :this.state.confirmnewpassword,
-            days : this.state.days
+            email : this.state.email,
+            password : this.state.password,
+            notification : this.state.days
         };
-        console.log('testing');
         console.log(formData);
+		$.ajax({
+			type: "POST",
+			url: 'http://localhost:5000/api/user',
+			crossDomain: true,
+			dataType: 'json',
+            contentType: 'application/json',
+            headers: {'Authentication' : localStorage.getItem('token')},
+			success: (result)=>{
+				alert('User profile successfully updated');
+			}, 
+			error: (result)=>{
+				alert('User profile failed to update');
+			}, 
+            data : JSON.stringify(formData)
+		});
         
-        // $.ajax({
-        //  type: "POST",
-        //  url: 'http://localhost:5000/login',
-        //  crossDomain: true,
-        //  data: formData,
-  //           dataType: 'json',
-        //  success: (result)=>{
-  //               localStorage.setItem('token', result['token']);
-  //               this.context.router.history.push('/home'); 
-  //           },
-  //           error: (result)=>{
-  //               alert('invalid login');
-  //               localStorage.removeItem('token');
-  //               this.setState(initialState);
-  //           }
-        // });
-        }
+	}
 
     render(){
         return (
          <div>
-            <p> Edit Profile and Adjust Altert </p>
+            <h3> Edit Profile and Adjust Settings for {this.state.username} </h3>
             <Form horizontal onSubmit={this.handleSubmit}>
                     <FormGroup>
                         <Col componentClass={ControlLabel} sm={2}>New Email:</Col>
                         <Col sm={5}>
-                            <FormControl name="newemail" type="text" value={this.state.newemail} onChange={this.handleChange} />
+                            <FormControl name="email" type="text" value={this.state.email} onChange={this.handleChange} />
                         </Col>
                     </FormGroup> 
                     <FormGroup>
                         <Col componentClass={ControlLabel} sm={2}>New Password:</Col>
                         <Col sm={5}>
-                            <FormControl name="newpassword" type="password" value={this.state.newpassword} onChange={this.handleChange} />
+                            <FormControl name="password" type="password" value={this.state.password} onChange={this.handleChange} />
                         </Col>
                     </FormGroup>
                     <FormGroup>
                         <Col componentClass={ControlLabel} sm={2}>Confirm New Password:</Col>
                         <Col sm={5}>
-                            <FormControl name="confirmnewpassword" type="password" value={this.state.confirmnewpassword} onChange={this.handleChange} />
+                            <FormControl name="confirmpassword" type="password" value={this.state.confirmpassword} onChange={this.handleChange} />
                         </Col>
                     </FormGroup>
                     

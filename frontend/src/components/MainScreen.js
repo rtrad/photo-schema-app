@@ -1,8 +1,9 @@
 import React from 'react';
 import $ from 'jquery';
-import {ListGroup, ListGroupItem, Form, FormGroup, Button, FormControl, Grid, Row, Col} from 'react-bootstrap';
+import {ListGroup, ListGroupItem, Form, FormGroup, Button, FormControl, Grid, Row, Col, Image} from 'react-bootstrap';
 import SearchBar from './SearchBar';
 import SearchResults from './SearchResults';
+import TaggingModal from './TaggingModal';
 
 class MainScreen extends React.Component {
 	constructor(props) {
@@ -13,7 +14,10 @@ class MainScreen extends React.Component {
 		    search_results: [],
 		    query: null,
 		    show_search: false,
-		    rangepicker_focus: null
+		    rangepicker_focus: null,
+			show_tagging : false,
+			photos_tagging : [],
+			tags_tagging : []
 		};
 		this.fetchPhotos();
         this.handleChange = this.handleChange.bind(this);
@@ -91,6 +95,29 @@ class MainScreen extends React.Component {
         });
     }
 	
+	pushTag(photo_id, tag) {
+        let payload = {'tags' : {'content' : [tag]}};
+        $.ajax({
+            type: "POST",
+            url: 'http://localhost:5000/api/photo/' + photo_id + '/tags',
+            crossDomain: true,
+            contentType: 'application/json',
+            headers : {'Authentication' : localStorage.getItem('token')},
+            data : JSON.stringify(payload)
+        });
+    }
+    
+    removeTag(photo_id, tag) {
+        let payload = {'tags' : {'content' : [tag]}};
+        $.ajax({
+            type: "DELETE",
+            url: 'http://localhost:5000/api/photo/' + photo_id + '/tags',
+            crossDomain: true,
+            contentType: 'application/json',
+            headers : {'Authentication' : localStorage.getItem('token')},
+            data : JSON.stringify(payload)
+        });
+    }
 	
 	handleChange(event) {
         const target = event.target;
@@ -116,30 +143,61 @@ class MainScreen extends React.Component {
             show_search: false
         });
     }
+	
+	onTaggingClose = (e) => {
+		this.setState({show_tagging : false});
+	}
+	
+	handleTag = (photos) => {
+		let tags = [];  
+		photos.forEach(
+			function(photo, photo_index){
+				tags[photo_index] = [];
+				photo.tags.content.forEach(
+					function(tag, tag_index) {
+						tags[photo_index].push({id: tag_index, text: tag});
+				});
+			});
+		this.setState({show_tagging : true, photos_tagging : photos, tags_tagging : tags});
+	}
 
     render() {
+		var imageStyle = {
+			width: '100px',
+			cursor: 'pointer'
+		}
 		return (
 		    <Grid>
-            <SearchBar onSearch={this.displaySearch}/>
-		    <Row>
-		    <SearchResults
-		        onClose={this.onSearchClose}
-		        results={this.state.search_results}
-		        query={this.state.query}
-		        show={this.state.show_search}/>
-			<ListGroup>
-                {Object.keys(this.state.photo_groups).map(key => 
-                    <div>
-                    <h3>{key}</h3>
-                    <ListGroupItem>
-                    {this.state.photo_groups[key].map(photo =>
-                        <img src={photo.url} width={100}></img>
-                    )}
-                    </ListGroupItem>
-                    </div>
-                )}
-			</ListGroup>
-			</Row>
+				<SearchBar onSearch={this.displaySearch}/>
+					<Row>
+						<SearchResults
+							onClose={this.onSearchClose}
+							results={this.state.search_results}
+							query={this.state.query}
+							show={this.state.show_search}/>
+						<ListGroup>
+							{Object.keys(this.state.photo_groups).map(key => 
+								<div>
+								<h3>
+									{key}
+									<Button className={"pull-right"} onClick={() => this.handleTag(this.state.photo_groups[key])}>Tag photos</Button>
+								</h3>
+								<ListGroupItem>
+								{this.state.photo_groups[key].map(photo =>
+									<Image src={photo.url} style={imageStyle} onClick={() => this.handleTag([photo])}></Image>
+								)}
+								</ListGroupItem>
+								</div>
+							)}
+						</ListGroup>
+						<TaggingModal
+							onClose={this.onTaggingClose}
+							photos={this.state.photos_tagging}
+							tags={this.state.tags_tagging}
+							show={this.state.show_tagging}
+							pushTag={this.pushTag}
+							removeTag={this.removeTag}/>
+					</Row>
 			</Grid>
 		);
 	}

@@ -30,9 +30,6 @@ class Header extends React.Component {
                         <NavItem>
                             <Link to='/upload'>Upload</Link>
                         </NavItem>
-                        <NavItem>
-                            <Link to='/tagging'>Tagging</Link>
-                        </NavItem>
                     </Nav>
                     <Nav pullRight>
                         <NavItem>
