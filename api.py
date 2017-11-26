@@ -11,6 +11,8 @@ from config import *
 import smtplib
 import threading
 import time
+import datetime
+import dateutil.parser
 
 
 boto_session = boto3.Session(aws_access_key_id = AWS_ACCESS_KEY_ID,
@@ -437,6 +439,8 @@ def email():
             email = user["email"]
             name = user["name"]
             username = user["username"]
+            notification = user["notification"]
+            datetime = user["datetime"]
             photos = photos_table.scan(FilterExpression = Attr("username").eq(username))
             total = photos["Count"]
             untagged = 0
@@ -444,8 +448,20 @@ def email():
                 if photo["tags"]["count"] == 0:
                     untagged += 1
             smtpObj.sendmail(SENDER_ADDRESS, email,
+            if untagged != 0:
+                thedate = dateutil.parser.parse(datetime)
+                thedate = thedate + datetime.timedelta(days=notification)
+                if thedate >= datetime.datetime.now:
+                    smtpObj.sendmail(SENDER_ADDRESS, email,
                          'Subject: Untagged photos \n' + name
                              + ', you have ' + str(untagged) + " untagged photos out of " + str(total) + " total photos.")
+                    response = users_table.update_item(
+                        Key={
+                            'username': username
+                        },
+                        UpdateExpression="set datetime = :thedate",
+                        ExpressionAttributeValues={":thedate":thedate}
+                    )
         smtpObj.quit()
         return "Email sent"
     except Exception as e:
