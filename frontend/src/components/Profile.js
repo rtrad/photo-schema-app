@@ -27,13 +27,30 @@ class Profile extends React.Component{
         this.setState({[target.name]: target.value});        
     }
 
+    validateChange() {
+        let output = '';
+        output += this.state.newpassword.length < 8 ? 'Password must be at least 8 characters long\n' : '';
+        output += this.state.confirmnewpassword !== this.state.newpassword ? 'Passwords must be equal\n' : '';
+        output += this.state.newemail.length == 0 ? 'Must enter an email address\n' : '';
+        output += this.state.days <= 0 ? 'days must be more than zero\n' : '';
+
+        if (output.length == 0) {
+            return true;
+        } else {
+            return output;
+        }
+    }
+
     handleSubmit(event) {
         event.preventDefault();
-        var formData = {
-            newemail : this.state.newemail,
-            newpassword : this.state.newpassword,
-            confirmnewpassword :this.state.confirmnewpassword,
-            days : this.state.days
+        let valid = this.validateChange();
+        if (valid == true) {
+            var formData = {
+                newemail : this.state.newemail,
+                newpassword : this.state.newpassword,
+                confirmnewpassword :this.state.confirmnewpassword,
+                days : this.state.days
+            }
         };
         console.log('testing');
         console.log(formData);
