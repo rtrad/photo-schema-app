@@ -1,8 +1,7 @@
 import React from 'react';
 import $ from 'jquery';
-import {ListGroup, ListGroupItem, Form, FormGroup, Button, FormControl, Grid, Row, Col, Image} from 'react-bootstrap';
+import {ListGroup, ListGroupItem, Button, Grid, Row, Image} from 'react-bootstrap';
 import SearchBar from './SearchBar';
-import SearchResults from './SearchResults';
 import TaggingModal from './TaggingModal';
 
 class MainScreen extends React.Component {
@@ -252,9 +251,5 @@ class MainScreen extends React.Component {
 		);
 	}
 }
-
-MainScreen.contextTypes = {
-    router: React.PropTypes.func.isRequired
-};
 
 export default MainScreen;
