@@ -1,6 +1,8 @@
 import React from 'react';
 import $ from 'jquery';
 import { Modal, Form, FormGroup, FormControl, ControlLabel, Col, Button } from 'react-bootstrap'; 
+import {Nav, Navbar, NavItem} from 'react-bootstrap';
+
 import RegistrationForm from './RegistrationForm';
 
 const initialState = {

@@ -125,6 +125,7 @@ class MainScreen extends React.Component {
 
    
     render() {
+<<<<<<< HEAD
         var imageStyle = {
             width: "600px",
             overflow: "auto",

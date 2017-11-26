@@ -273,7 +273,63 @@ def filter():
        return json.dumps({"error" : str(e)}), 500
 
 
+@app.route('/api/user', methods = ['GET'])
+@authenticate
+def get_user():
+    try:
+        response = users_table.get_item(
+                Key={
+                    'username' : g.username
+                },
+                ProjectionExpression='username, email, notification'
+            )
 
+        user = response['Item']
+        return json.dumps({"user" : user}), 200
+    except Exception as e:
+        return json.dumps({"error" : str(e)}), 500
+
+@app.route('/api/user', methods = ['POST'])
+@authenticate
+def update_user():
+    try:
+        data = request.get_json()
+        email = data['email'] if 'email' in data else None
+        password = data['password'] if 'password' in data else None
+        notification = data['notification'] if 'notification' in data else None
+        
+        update_exp = []
+        update_exp_names = {}
+        update_exp_values = {}
+        if email:
+            update_exp.append('#email = :newemail')
+            update_exp_names['#email'] = 'email'
+            update_exp_values[':newemail'] = email
+        if password:
+            password = sha256_crypt.encrypt(password)
+            update_exp.append('#password = :newpassword')
+            update_exp_names['#password'] = 'password'
+            update_exp_values[':newpassword'] = password
+        if notification:        
+            update_exp.append('#notification = :newnotification')
+            update_exp_names['#notification'] = 'notification'
+            update_exp_values[':newnotification'] = notification
+        
+        if len(update_exp) > 0:
+            response = users_table.update_item(
+                        Key={
+                            'username' : g.username
+                        },
+                        UpdateExpression='SET ' + ','.join(update_exp),
+                        ExpressionAttributeNames=update_exp_names,
+                        ExpressionAttributeValues=update_exp_values
+                    )
+
+        return json.dumps({"success" : "user updated"}), 200
+    except Exception as e:
+       return json.dumps({"error" : str(e)}), 500
+       
+       
 @app.route('/login', methods = ['POST'])
 def login():
     try:
@@ -316,7 +372,8 @@ def register():
                     'username' : username,
                     'email' : email,
                     'name' : name,
-                    'password' : password
+                    'password' : password,
+					'notification' : 7
                 },
                 ConditionExpression='attribute_not_exists(username)'
             )
