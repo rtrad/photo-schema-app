@@ -224,7 +224,7 @@ class MainScreen extends React.Component {
 								<div>
 								<h3>
 									{key}
-									<Button className={"pull-right"} onClick={() => this.handleTag(this.state.photo_groups[key])}>Tag photos</Button>
+									<Button className={"pull-right"} onClick={() => this.handleTag(this.state.photo_groups[key])}>tag photos</Button>
 								</h3>
 								<div style={imageStyle}>
 									<ListGroupItem style={scrollingWrapper}>
