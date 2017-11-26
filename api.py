@@ -11,6 +11,8 @@ from config import *
 import smtplib
 import threading
 import time
+import datetime
+import dateutil.parser
 
 
 boto_session = boto3.Session(aws_access_key_id = AWS_ACCESS_KEY_ID,
@@ -232,7 +234,6 @@ def filter():
         query_filter = Attr('username').eq(g.username)
 
         data = request.get_json()
-
         filters = data['filters'] if 'filters' in data else []
         for query in filters:
             new_filter = _format_filter(query['attribute'], query['expression'])
@@ -240,7 +241,8 @@ def filter():
 
         response = photos_table.scan(
                 FilterExpression=query_filter,
-                ProjectionExpression='photo_id, upload_time, tags, s3_key'
+                ProjectionExpression='photo_id, upload_time, tags, s3_key',
+                Limit=30
             )
 
         photos = response['Items']
@@ -437,15 +439,28 @@ def email():
             email = user["email"]
             name = user["name"]
             username = user["username"]
+            notification = user["notification"]
+            datetime = user["datetime"]
             photos = photos_table.scan(FilterExpression = Attr("username").eq(username))
             total = photos["Count"]
             untagged = 0
             for photo in photos["Items"]:
                 if photo["tags"]["count"] == 0:
                     untagged += 1
-            smtpObj.sendmail(SENDER_ADDRESS, email,
+            if untagged != 0:
+                thedate = dateutil.parser.parse(datetime)
+                thedate = thedate + datetime.timedelta(days=notification)
+                if thedate >= datetime.datetime.now:
+                    smtpObj.sendmail(SENDER_ADDRESS, email,
                          'Subject: Untagged photos \n' + name
                              + ', you have ' + str(untagged) + " untagged photos out of " + str(total) + " total photos.")
+                    response = users_table.update_item(
+                        Key={
+                            'username': username
+                        },
+                        UpdateExpression="set datetime = :thedate",
+                        ExpressionAttributeValues={":thedate":thedate}
+                    )
         smtpObj.quit()
         return "Email sent"
     except Exception as e:
@@ -518,7 +533,6 @@ def _format_filter(attribute, expression):
 def autoEmail():
     while True:
         email()
-        time.sleep(86400 * 7)
 
 threadObj = threading.Thread(target=autoEmail)
 threadObj.start()

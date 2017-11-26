@@ -1,12 +1,6 @@
 import React, { Component } from 'react';
 import Dropzone from 'react-dropzone';
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import FontIcon from 'material-ui/FontIcon';
-import {blue500, red500, greenA200} from 'material-ui/styles/colors';
-import RaisedButton from 'material-ui/RaisedButton';
-import {Grid, Col} from "react-bootstrap";
-import {Form, Button} from 'react-bootstrap';
-import {ListGroup, ListGroupItem} from 'react-bootstrap';
+import {Grid, Col, Row, ButtonToolbar, Form, Button, ListGroup, ListGroupItem} from "react-bootstrap";
 import $ from "jquery";
 
 const handleDropRejected = (...args) => console.log('reject', args)
@@ -17,20 +11,22 @@ export default class UploadScreen extends Component {
     super(props);
     this.state = {
       filesToBeSent:[],
-      photoCount:100,
+      maxPhotoCount:100,
       photoURLs: [],
-      photosAdded:0
     }
-    this.handleClick = this.handleClick.bind(this)
+    this.onDrop = this.onDrop.bind(this)
   }
 
   onDrop(acceptedFiles, rejectedFiles) {
-    console.log(acceptedFiles);
     var filesToBeSent = this.state.filesToBeSent;
     var photoURLs = this.state.photoURLs;
-    if (filesToBeSent.length < this.state.photoCount) {
+    var numberOfPhotos = 0;
+    for (var i in filesToBeSent) {
+      numberOfPhotos = numberOfPhotos + filesToBeSent[i].length;
+    }
+    if (numberOfPhotos < this.state.maxPhotoCount) {
+      filesToBeSent.push(acceptedFiles);
       for (var i in acceptedFiles) {
-        filesToBeSent.push(acceptedFiles[i]);
         var reader = new FileReader();
         reader.onload = function(e) {
           photoURLs.push(e.target.result);
@@ -38,118 +34,128 @@ export default class UploadScreen extends Component {
         reader.readAsDataURL(acceptedFiles[i]);
       }
     var photosAdded = acceptedFiles.length;
-    this.setState({filesToBeSent,photoURLs,photosAdded});
+    this.setState({filesToBeSent, photoURLs});
     }
     else {
       alert("You have reached the limit of files you can upload at one time.")
     }
   }
 
-  handleClick(event) {
+  handleUpload(event) {
     console.log("handleClick",event);
     event.preventDefault();
-    var filesArray = this.state.filesToBeSent;
-    if (filesArray.length > 0) {
-      for (var i = 0; i < filesArray.length; i++) {
-        var fd = new FormData();
-        fd.append('file', filesArray[i]);
-        console.log(fd);
-        $.ajax ({type:"POST",
-          url:"http://localhost:5000/api/photo",
-          data:fd,
-          processData: false,
-          contentType: false,
-          headers: {Authentication: localStorage.getItem("token")},
-          crossDomain: true
-        });
+    var filesToBeSent = this.state.filesToBeSent;
+    if (filesToBeSent.length > 0) {
+      for (var i in filesToBeSent) {
+        for (var j in filesToBeSent[i]) {
+          var fd = new FormData();
+          fd.append('file', filesToBeSent[i][j]);
+          console.log(fd);
+          $.ajax ({type:"POST",
+            url:"http://localhost:5000/api/photo",
+            data:fd,
+            processData: false,
+            contentType: false,
+            headers: {Authentication: localStorage.getItem("token")},
+            crossDomain: true
+          });
+        }
       }
       alert("File upload successful!");
       var filesToBeSent = this.state.filesToBeSent;
+      var photoURLs = this.state.photoURLs;
       filesToBeSent = [];
-      this.setState({filesToBeSent})
+      photoURLs = [];
+      this.setState({filesToBeSent, photoURLs});
     }
     else {
-      alert("There are no files to upload.");
+      alert("There are no files to upload!");
     }
   }
 
   handleClear(event) {
     var filesToBeSent = this.state.filesToBeSent;
     var photoURLs = this.state.photoURLs;
-    var photosAdded = 0;
-    filesToBeSent = [];
-    photoURLs = [];
-    this.setState({filesToBeSent, photoURLs, photosAdded})
-  }
-
-  handleClearLast(event) {
-    var filesToBeSent = this.state.filesToBeSent;
-    var photoURLs = this.state.photoURLs;
-    var photosAdded = this.state.photosAdded;
-    for (var i = 0; i < photosAdded; i++) {
-      filesToBeSent.pop();
-      photoURLs.pop();
+    if (filesToBeSent.length != 0) {
+      filesToBeSent = [];
+      photoURLs = [];
+      this.setState({filesToBeSent, photoURLs});
+    } else {
+      alert("There are no photos to remove!");
     }
-    photosAdded = 0;
-    this.setState({filesToBeSent, photoURLs, photosAdded})
   }
 
-  handleReload() {
+  handleUndo(event) {
     var filesToBeSent = this.state.filesToBeSent;
     var photoURLs = this.state.photoURLs;
-    this.setState({filesToBeSent, photoURLs})
+    if (filesToBeSent.length != 0) {
+      for (var i in filesToBeSent[filesToBeSent.length - 1]) {
+        photoURLs.pop();
+      }
+      filesToBeSent.pop();
+      this.setState({filesToBeSent, photoURLs});
+    } else {
+      alert("There are no photos to remove!");
+    }
   }
 
+  handleLoadPreview() {
+    var filesToBeSent = this.state.filesToBeSent;
+    var photoURLs = this.state.photoURLs;
+    if (filesToBeSent.length != 0) {
+      this.setState({filesToBeSent, photoURLs});
+    } else {
+      alert("There are no files to preview!");
+    }
+  }
 
   render() {
     return (
-      <Grid><Col xs={6} md={6}>
+      <Grid><Row><Col>
             <section>
             <Dropzone onDrop={ (photos) => this.onDrop(photos) } accept="image/jpeg,image/jpg,image/tiff,image/gif,image/png,image/bmp,image/tif" multiple={ true } onDropRejected={ handleDropRejected}>
-              Drag one file or click here to select a photo to upload. Please drop or select one photo at a time.
+              Click here or drag the desired photos into this area. Press "Load Preview" afterwards to load the photos into the view after they have been dropped in.
             </Dropzone>
             </section>
-        <Form onSubmit = {this.handleClick}>
-            <Button type = 'submit'>
-              Upload
-            </Button>
-        </Form>
+        </Col></Row>
 
-        <MuiThemeProvider>
-            <RaisedButton
-              label = "Clear All"
-              primary = {true}
-              onClick = {(event) => this.handleClear(event)}
-            />
-        </MuiThemeProvider>
+        <hr></hr>
 
-        <MuiThemeProvider>
-            <RaisedButton
-              label = "Undo"
-              primary = {true}
-              onClick = {(event) => this.handleClearLast(event)}
-            />
-        </MuiThemeProvider>
+        <Row><Col><ButtonToolbar>
+        <Button bsStyle="primary" onClick = {(event) => this.handleLoadPreview(event)}>
+          Load Preview
+        </Button>
 
-        <MuiThemeProvider>
-            <RaisedButton
-              label = "Load Preview"
-              primary = {true}
-              onClick = {(event) => this.handleReload(event)}
-            />
-        </MuiThemeProvider>
+        <Button bsStyle="danger" onClick = {(event) => this.handleUndo(event)}>
+          Undo
+        </Button>
 
+        <Button bsStyle="danger" onClick = {(event) => this.handleClear(event)}>
+          Clear All
+        </Button>
+        </ButtonToolbar></Col></Row>
+
+        <br></br>
+
+        <Row><Col>
         <ListGroup>
           <div>
            <ListGroupItem>
               {this.state.photoURLs.map(photo =>
-              <img src={ photo } alt="image preview" height="200" width="200" />
+              <img src={ photo } alt="image preview" height="140" width="140" style={{margin: "5px"}} />
               )}
               </ListGroupItem>
             </div>
   			</ListGroup>
+        </Col></Row>
 
-      </Col></Grid>
+        <Row><Col>
+        <Button bsStyle="success" onClick = {(event) => this.handleUpload(event)}>
+          Upload
+        </Button>
+        </Col></Row>
+
+      </Grid>
     );
   }
 }
