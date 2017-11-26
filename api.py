@@ -9,6 +9,8 @@ from passlib.hash import sha256_crypt
 from auth import generate_token, verify_token, authenticate
 from config import *
 import smtplib
+import threading
+import time
 
 
 boto_session = boto3.Session(aws_access_key_id = AWS_ACCESS_KEY_ID,
@@ -513,6 +515,13 @@ def _format_filter(attribute, expression):
                 return conditions[expression['operation']]['function'](attribute, expression)
     return None
 
+def autoEmail():
+    while True:
+        email()
+        time.sleep(86400 * 7)
+
+threadObj = threading.Thread(target=autoEmail)
+threadObj.start()
 
 
 if __name__ == '__main__':
