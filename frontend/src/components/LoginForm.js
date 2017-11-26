@@ -15,7 +15,8 @@ const initialState = {
         confirm_password: '',
         name : '',
         email: ''
-    }
+    },
+	loading: false
 };
 
 class LoginForm extends React.Component {
@@ -53,6 +54,7 @@ class LoginForm extends React.Component {
 
     handleSubmit(event) {
 		event.preventDefault();
+		this.setState({loading : true});
 		var formData = {
 			username : this.state.username,
 			password : this.state.password
@@ -66,11 +68,13 @@ class LoginForm extends React.Component {
 			success: (result)=>{
                 localStorage.setItem('token', result['token']);
                 this.context.router.history.push('/home'); 
+				this.setState({loading : false});
             },
             error: (result)=>{
                 alert('invalid login');
                 localStorage.removeItem('token');
                 this.setState(initialState);
+				this.setState({loading : false});
             }
 		});
     }
@@ -142,7 +146,7 @@ class LoginForm extends React.Component {
                     </FormGroup>
                     <FormGroup>
                         <Col smOffset={2} sm={10}>
-                            <Button type="submit">Login</Button>
+                            <Button type="submit" disabled={this.state.loading}>{this.state.loading ? 'Loging in ...' : 'Login'}</Button>
                         </Col>
                     </FormGroup>
                     <FormGroup>
