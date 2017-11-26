@@ -234,14 +234,15 @@ def filter():
         query_filter = Attr('username').eq(g.username)
 
         data = request.get_json()
-        filters = data['filters'] if 'filters' in data else []
+        filters = data['filters']
         for query in filters:
             new_filter = _format_filter(query['attribute'], query['expression'])
             query_filter = query_filter & new_filter if new_filter else query_filter
 
         response = photos_table.scan(
                 FilterExpression=query_filter,
-                ProjectionExpression='photo_id, upload_time, tags, s3_key'
+                ProjectionExpression='photo_id, upload_time, tags, s3_key',
+                Limit=30
             )
 
         photos = response['Items']
@@ -446,7 +447,6 @@ def email():
             for photo in photos["Items"]:
                 if photo["tags"]["count"] == 0:
                     untagged += 1
-            smtpObj.sendmail(SENDER_ADDRESS, email,
             if untagged != 0:
                 thedate = dateutil.parser.parse(datetime)
                 thedate = thedate + datetime.timedelta(days=notification)
