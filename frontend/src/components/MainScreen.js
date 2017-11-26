@@ -148,15 +148,19 @@ class MainScreen extends React.Component {
     }
 	
     onSearchClose = (e) => {
+        window.location.reload();
 		console.log('hide search');
         this.setState({
             query: '',
             show_search: false
         });
+
     }
 	
 	onTaggingClose = (e) => {
+        window.location.reload();
 		this.setState({show_tagging : false});
+
 	}
 	
 	handleTag = (photos) => {
