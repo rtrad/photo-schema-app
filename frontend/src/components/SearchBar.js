@@ -78,6 +78,7 @@ export default class SearchBar extends React.Component {
 				this.completedSearch(result),
 				this.setState({loading : false});
 			}, 
+			error: ()=> this.setState({loading : false}),
             data : JSON.stringify(payload)
 		});
     }

@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import $ from 'jquery';
-import { Modal, Form, FormGroup, FormControl, ControlLabel, Col, Button } from 'react-bootstrap'; 
+import { Modal, Form, FormGroup, FormControl, ControlLabel, Col, Button, Row, Grid} from 'react-bootstrap'; 
 import {Nav, Navbar, NavItem} from 'react-bootstrap';
 
 
@@ -95,8 +95,14 @@ class Profile extends React.Component{
 
     render(){
         return (
-         <div>
+         <Grid>
+			<Row>
+			<Col xs={12} md={12}>
             <h3> Edit Profile and Adjust Settings for {this.state.username} </h3>
+			</Col>
+			</Row>
+			<Row>
+			<Col xs={12} md={12}>
             <Form horizontal onSubmit={this.handleSubmit}>
                     <FormGroup>
                         <Col componentClass={ControlLabel} sm={2}>New Email:</Col>
@@ -131,7 +137,9 @@ class Profile extends React.Component{
                         </Col>
                     </FormGroup>
             </Form>
-         </div>
+			</Col>
+			</Row>
+         </Grid>
         )
     }
 
