@@ -518,7 +518,6 @@ def _format_filter(attribute, expression):
 def autoEmail():
     while True:
         email()
-        time.sleep(86400 * 7)
 
 threadObj = threading.Thread(target=autoEmail)
 threadObj.start()
