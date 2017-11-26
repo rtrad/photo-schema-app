@@ -94,6 +94,23 @@ class MainScreen extends React.Component {
                 } 
             }
         });
+		
+		$.ajax({
+			type: "POST",
+			url: 'http://localhost:5000/api/photos/filter',
+			crossDomain: true,
+			dataType: 'json',
+            contentType: 'application/json',
+            headers: {'Authentication' : localStorage.getItem('token')},
+			success: (result)=>{
+				this.setState({
+                  photo_groups: Object.assign({}, this.state.photo_groups, {
+                    'all photos': result,
+                  }),
+                }); 
+			},
+			data : JSON.stringify({'from recent' : true})
+		});
     }
 	
 	pushTag(photo_id, tag) {
@@ -185,8 +202,8 @@ class MainScreen extends React.Component {
         }
         var card = {
 			display: "inline-block",
-			width: "100",
-			margin: "5",
+			width: "100px",
+			margin: "5px",
 			cursor: 'pointer'
         }
 		return (
