@@ -46,9 +46,9 @@ class Profile extends React.Component{
 
     validateChange() {
         let output = '';
-        output += this.state.newpassword.length < 8 ? 'Password must be at least 8 characters long\n' : '';
-        output += this.state.confirmnewpassword !== this.state.newpassword ? 'Passwords must be equal\n' : '';
-        output += this.state.newemail.length == 0 ? 'Must enter an email address\n' : '';
+        output += this.state.password.length < 8 ? 'Password must be at least 8 characters long\n' : '';
+        output += this.state.confirmpassword !== this.state.password ? 'Passwords must be equal\n' : '';
+        output += this.state.email.length == 0 ? 'Must enter an email address\n' : '';
         output += this.state.days <= 0 ? 'days must be more than zero\n' : '';
 
         if (output.length == 0) {
