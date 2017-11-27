@@ -377,7 +377,9 @@ def register():
                     'email' : email,
                     'name' : name,
                     'password' : password,
-					'notification' : 7
+					'notification' : 7,
+					'datetime' : '2017-01-01',
+					'searches' : []
                 },
                 ConditionExpression='attribute_not_exists(username)'
             )
