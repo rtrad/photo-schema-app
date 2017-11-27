@@ -252,4 +252,8 @@ class MainScreen extends React.Component {
 	}
 }
 
+MainScreen.contextTypes = {
+  router: React.PropTypes.func.isRequired
+};
+
 export default MainScreen;

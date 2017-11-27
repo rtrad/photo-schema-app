@@ -166,4 +166,8 @@ class LoginForm extends React.Component {
     }
 }
 
+LoginForm.contextTypes = {
+  router: React.PropTypes.func.isRequired
+};
+
 export default LoginForm;
