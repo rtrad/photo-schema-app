@@ -234,7 +234,7 @@ def filter():
         query_filter = Attr('username').eq(g.username)
 
         data = request.get_json()
-        filters = data['filters']
+        filters = data['filters'] if 'filters' in data else []
         for query in filters:
             new_filter = _format_filter(query['attribute'], query['expression'])
             query_filter = query_filter & new_filter if new_filter else query_filter

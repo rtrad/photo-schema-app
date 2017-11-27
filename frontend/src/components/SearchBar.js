@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import $ from 'jquery';
-import {DateRangePicker, DayPickerRangeController, isInclusivelyBeforeDay} from 'react-dates';
-import {Form, FormGroup, Button, FormControl, Row, Col} from 'react-bootstrap';
+import {DateRangePicker, isInclusivelyBeforeDay} from 'react-dates';
+import {Form, FormGroup, Button, FormControl, Col} from 'react-bootstrap';
 const moment = require('moment');
 
 export default class SearchBar extends React.Component {
@@ -75,7 +75,7 @@ export default class SearchBar extends React.Component {
             contentType: 'application/json',
             headers: {'Authentication' : localStorage.getItem('token')},
 			success: (result) => {
-				this.completedSearch(result),
+				this.completedSearch(result);
 				this.setState({loading : false});
 			}, 
 			error: ()=> this.setState({loading : false}),

@@ -1,7 +1,6 @@
 import React from 'react';
 import $ from 'jquery';
-import { Modal, Form, FormGroup, FormControl, ControlLabel, Col, Button } from 'react-bootstrap'; 
-import {Nav, Navbar, NavItem} from 'react-bootstrap';
+import { Form, FormGroup, FormControl, ControlLabel, Col, Button } from 'react-bootstrap';	
 
 import RegistrationForm from './RegistrationForm';
 
@@ -34,13 +33,13 @@ class LoginForm extends React.Component {
     
     validateRegistration() {
         let output = '';
-        output += this.state.registerUser.username.length == 0 ? 'Must enter a username\n' : '';
+        output += this.state.registerUser.username.length === 0 ? 'Must enter a username\n' : '';
         output += this.state.registerUser.password.length < 8 ? 'Password must be at least 8 characters long\n' : '';
         output += this.state.registerUser.confirm_password !== this.state.registerUser.password ? 'Passwords must be equal\n' : '';
-        output += this.state.registerUser.name.length == 0 ? 'Must enter your name\n' : '';
-        output += this.state.registerUser.email.length == 0 ? 'Must enter an email address\n' : '';
+        output += this.state.registerUser.name.length === 0 ? 'Must enter your name\n' : '';
+        output += this.state.registerUser.email.length === 0 ? 'Must enter an email address\n' : '';
         
-        if (output.length == 0) {
+        if (output.length === 0) {
             return true;
         } else {
             return output;
