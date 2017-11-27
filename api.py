@@ -11,7 +11,6 @@ from config import *
 import smtplib
 import threading
 import time
-import datetime
 import dateutil.parser
 
 
@@ -440,17 +439,12 @@ def email():
             name = user["name"]
             username = user["username"]
             notification = user["notification"]
-            datetime = user["datetime"]
             photos = photos_table.scan(FilterExpression = Attr("username").eq(username))
             total = photos["Count"]
             untagged = 0
             for photo in photos["Items"]:
                 if photo["tags"]["count"] == 0:
                     untagged += 1
-            if untagged != 0:
-                thedate = dateutil.parser.parse(datetime)
-                thedate = thedate + datetime.timedelta(days=notification)
-                if thedate >= datetime.datetime.now:
                     smtpObj.sendmail(SENDER_ADDRESS, email,
                          'Subject: Untagged photos \n' + name
                              + ', you have ' + str(untagged) + " untagged photos out of " + str(total) + " total photos.")
@@ -458,8 +452,6 @@ def email():
                         Key={
                             'username': username
                         },
-                        UpdateExpression="set datetime = :thedate",
-                        ExpressionAttributeValues={":thedate":thedate}
                     )
         smtpObj.quit()
         return "Email sent"
