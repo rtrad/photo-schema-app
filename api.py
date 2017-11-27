@@ -451,7 +451,7 @@ def email():
                     untagged += 1
             if untagged < 0:
                 thedate = dateutil.parser.parse(lastdate)
-                thedate = thedate + datetime.timedelta(days=int(notification))
+                thedate = thedate + timedelta(days=int(notification))
                 if thedate <= datetime.now():
                     thedate = datetime.now().date()
                     smtpObj.sendmail(SENDER_ADDRESS, email,
