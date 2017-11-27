@@ -394,7 +394,7 @@ def register():
 def get_recent_searches():
     try:
         response = users_table.query(
-                KeyConditionExpression=Key('username').eq('admin'),
+                KeyConditionExpression=Key('username').eq(g.username),
                 Limit=1,
                 ProjectionExpression='searches[0], searches[1], searches[2]'
             );
