@@ -33,7 +33,6 @@ export default class UploadScreen extends Component {
         }
         reader.readAsDataURL(acceptedFiles[i]);
       }
-    var photosAdded = acceptedFiles.length;
     this.setState({filesToBeSent, photoURLs});
     }
     else {
@@ -62,7 +61,6 @@ export default class UploadScreen extends Component {
         }
       }
       alert("File upload successful!");
-      var filesToBeSent = this.state.filesToBeSent;
       var photoURLs = this.state.photoURLs;
       filesToBeSent = [];
       photoURLs = [];
@@ -76,7 +74,7 @@ export default class UploadScreen extends Component {
   handleClear(event) {
     var filesToBeSent = this.state.filesToBeSent;
     var photoURLs = this.state.photoURLs;
-    if (filesToBeSent.length != 0) {
+    if (filesToBeSent.length !== 0) {
       filesToBeSent = [];
       photoURLs = [];
       this.setState({filesToBeSent, photoURLs});
@@ -88,7 +86,7 @@ export default class UploadScreen extends Component {
   handleUndo(event) {
     var filesToBeSent = this.state.filesToBeSent;
     var photoURLs = this.state.photoURLs;
-    if (filesToBeSent.length != 0) {
+    if (filesToBeSent.length !== 0) {
       for (var i in filesToBeSent[filesToBeSent.length - 1]) {
         photoURLs.pop();
       }
@@ -154,6 +152,8 @@ export default class UploadScreen extends Component {
           Upload
         </Button>
         </Col></Row>
+
+        <br></br>
 
       </Grid>
     );
