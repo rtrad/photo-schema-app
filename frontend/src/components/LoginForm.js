@@ -145,7 +145,7 @@ class LoginForm extends React.Component {
                     </FormGroup>
                     <FormGroup>
                         <Col smOffset={2} sm={10}>
-                            <Button type="submit" disabled={this.state.loading}>{this.state.loading ? 'Loging in ...' : 'Login'}</Button>
+                            <Button type="submit" disabled={this.state.loading}>{this.state.loading ? 'Logging in ...' : 'Login'}</Button>
                         </Col>
                     </FormGroup>
                     <FormGroup>

@@ -64,7 +64,7 @@ class MainScreen extends React.Component {
 			success: (result)=>{
 				this.setState({
                   photo_groups: Object.assign({}, this.state.photo_groups, {
-                    untaggged: result,
+                    untagged: result,
                   }),
                 }); 
 			}, 
