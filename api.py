@@ -429,43 +429,44 @@ def get_recent_searches():
         # return render_template('home.html', photos=None)
 
 
-@app.route('/email')
 def email():
     try:
-        smtpObj = smtplib.SMTP(SMPT_SERVER, SMPT_PORT)
-        smtpObj.ehlo()
-        smtpObj.starttls()
-        smtpObj.login(SENDER_ADDRESS, SENDER_PASSWORD)
-        users = users_table.scan()['Items']
-        for user in users:
-            email = user["email"]
-            name = user["name"]
-            username = user["username"]
-            notification = user["notification"]
-            lastdate = user["datetime"]
-            photos = photos_table.scan(FilterExpression = Attr("username").eq(username))
-            total = photos["Count"]
-            untagged = 0
-            for photo in photos["Items"]:
-                if photo["tags"]["count"] == 0:
-                    untagged += 1
-            if untagged < 0:
-                thedate = dateutil.parser.parse(lastdate)
-                thedate = thedate + timedelta(days=int(notification))
-                if thedate <= datetime.now():
-                    thedate = datetime.now().date()
-                    smtpObj.sendmail(SENDER_ADDRESS, email,
-                         'Subject: Untagged photos \n' + name
-                             + ', you have ' + str(untagged) + " untagged photos out of " + str(total) + " total photos.")
-                    response = users_table.update_item(
-                        Key={
-                            'username': username
-                        },
-                        UpdateExpression="SET datetime = :thedate",
-                        ExpressionAttributeValues={":thedate": str(thedate)}
-                    )
-        smtpObj.quit()
-        return "Email sent"
+        while True:
+            smtpObj = smtplib.SMTP(SMPT_SERVER, SMPT_PORT)
+            smtpObj.ehlo()
+            smtpObj.starttls()
+            smtpObj.login(SENDER_ADDRESS, SENDER_PASSWORD)
+            users = users_table.scan()['Items']
+            for user in users:
+                email = user["email"]
+                name = user["name"]
+                username = user["username"]
+                notification = user["notification"]
+                lastdate = user["datetime"]
+                photos = photos_table.scan(FilterExpression = Attr("username").eq(username))
+                total = photos["Count"]
+                untagged = 0
+                for photo in photos["Items"]:
+                    if photo["tags"]["count"] == 0:
+                        untagged += 1
+                if untagged < 0:
+                    thedate = dateutil.parser.parse(lastdate)
+                    thedate = thedate + timedelta(days=int(notification))
+                    if thedate <= datetime.now():
+                        thedate = datetime.now().date()
+                        smtpObj.sendmail(SENDER_ADDRESS, email,
+                             'Subject: Untagged photos \n' + name
+                                 + ', you have ' + str(untagged) + " untagged photos out of " + str(total) + " total photos.")
+                        response = users_table.update_item(
+                            Key={
+                                'username': username
+                            },
+                            UpdateExpression="SET datetime = :thedate",
+                            ExpressionAttributeValues={":thedate": str(thedate)}
+                        )
+            smtpObj.quit()
+            return "Email sent"
+            time.sleep(86400)
     except Exception as e:
         return "Email not sent" + str(e)
 
