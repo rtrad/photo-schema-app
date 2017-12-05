@@ -3,7 +3,7 @@ AWS_ACCESS_KEY_ID = ''
 AWS_SECRET_ACCESS_KEY = ''
 
 REGION = 'us-west-2'
-BUCKET_NAME = 'photo-schema-app'
+BUCKET_NAME = 'intrapic-photo-schema-app'
 PHOTOS_TABLE = 'photos'
 USERS_TABLE = 'users'
 FILE_FORMAT_S3 = '{user}/{id}.{extension}'
