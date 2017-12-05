@@ -60,7 +60,6 @@ export default class UploadScreen extends Component {
           });
         }
       }
-      alert("File upload successful!");
       var photoURLs = this.state.photoURLs;
       filesToBeSent = [];
       photoURLs = [];

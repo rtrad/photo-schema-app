@@ -534,12 +534,13 @@ def _format_filter(attribute, expression):
                 return conditions[expression['operation']]['function'](attribute, expression)
     return None
 
-def autoEmail():
-    while True:
-        email()
+# def autoEmail():
+    # while True:
+        # email()
 
-#threadObj = threading.Thread(target=autoEmail)
-#threadObj.start()
+
+# threadObj = threading.Thread(target=autoEmail)
+# threadObj.start()
 
 
 if __name__ == '__main__':
