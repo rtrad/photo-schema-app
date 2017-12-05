@@ -20,7 +20,7 @@ boto_session = boto3.Session(aws_access_key_id = AWS_ACCESS_KEY_ID,
 
 s3 = boto_session.client('s3')
 
-dynamodb = boto_session.resource('dynamodb', region_name='us-west-2')
+dynamodb = boto_session.resource('dynamodb', region_name=REGION)
 photos_table = dynamodb.Table(PHOTOS_TABLE)
 users_table = dynamodb.Table(USERS_TABLE)
 
@@ -538,8 +538,8 @@ def autoEmail():
     while True:
         email()
 
-threadObj = threading.Thread(target=autoEmail)
-threadObj.start()
+#threadObj = threading.Thread(target=autoEmail)
+#threadObj.start()
 
 
 if __name__ == '__main__':
